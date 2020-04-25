@@ -1,0 +1,24 @@
+language: python
+sudo: required
+
+python:
+  - "3.6"
+
+# Branches to enbale CI.
+branches:
+  only:
+    - master
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - pytest
+
+deploy:
+  provider: heroku
+  api_key: $HEROKU_PRODUCTION_API_KEY
+  app: $HEROKU_APP_NAME
+
+notifications:
+  email: false

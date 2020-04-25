@@ -9,3 +9,12 @@
 # Ocena
 
 Ocena basically means "Rating" in Polish. It is the service responsible for handling all ratings related issues for Gophie-web
+
+```bash
+# alembic autogenerate revision
+alembic revision --autogenerate -m "Commit message"
+```
+
+## Deployment
+
+View the deployed API docs on usage at [Heroku](https://gophie-ocena.herokuapp.com/docs)
