@@ -13,7 +13,9 @@ app = FastAPI()
 
 origins = [
     "http://gophie-ocena.herokuapp.com",
-    "http://localhost:8000",
+    "http://localhost:3000",
+    "https://gophie.netlify.app",
+    "https://gophie.cam",
 ]
 
 app.add_middleware(
