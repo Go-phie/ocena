@@ -1,6 +1,9 @@
-from typing import List
+from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel
+
+### Rating schemas
 
 class RatingBase(BaseModel):
     ip_address: str
@@ -32,6 +35,59 @@ class RatingCreate(RatingBase):
     engine: str
     score: int
 
+
+##### Download Schemas
+
+class DownloadBase(BaseModel):
+    ip_address: str
+
+class DownloadCreate(DownloadBase):
+    movie_name: str
+    engine: str
+    description: str
+    size: str
+    year: str
+    download_link: str
+    cover_photo_link: str
+
+class DownloadFilter(BaseModel):
+    filter_by: str
+    filter_num: int
+    top: int
+
+class Download(DownloadBase):
+    id: int
+    movie_id: int
+    datetime: datetime
+
+    class Config:
+        orm_mode = True
+
+###### Referral Schemas
+
+class ReferralBase(BaseModel):
+    ip_address: str
+
+class ReferralCreate(ReferralBase):
+    movie_name: str
+    engine: str
+    description: str
+    size: str
+    year: str
+    download_link: str
+    cover_photo_link: str
+
+class Referral(ReferralBase):
+    id: int
+    movie_id: int
+    datetime: datetime
+
+    class Config:
+        orm_mode = True
+
+
+##### Movie Schemas
+
 class MovieBase(BaseModel):
     name: str
     engine: str
@@ -39,9 +95,28 @@ class MovieBase(BaseModel):
 class MovieCreate(MovieBase):
     pass
 
-class Movie(MovieBase):
+class MovieComplete(MovieBase):
     id: int
+    description: Optional[str]
+    size: Optional[str]
+    year: Optional[str]
+    download_link: Optional[str]
+    referral_id: Optional[str]
+    cover_photo_link: Optional[str]
+
+class MovieReferral(MovieComplete):
+
+    class Config:
+        orm_mode = True
+
+class MovieDownloads(MovieComplete):
+    downloads: int
+
+
+class Movie(MovieReferral):
     ratings: List[Rating] = []
+    referrals: List[Referral] = []
+    downloads: List[Download] = []
 
     class Config:
         orm_mode = True
