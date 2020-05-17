@@ -69,7 +69,16 @@ def get_movie_average_ratings(db: Session, movie: schemas.MovieCreate):
     """
     db_query = get_movie_by_schema(db, movie)
     if db_query.count() < 1:
-        db_movie = create_movie_by_moviecreate(db, movie)
+        movie = models.Movie(
+        name=movie.name,
+        engine=movie.engine,
+        year=movie.year,
+        description=movie.description,
+        download_link=movie.download_link,
+        size=movie.size,
+        cover_photo_link=movie.cover_photo_link,
+    )
+        db_movie = create_movie(db, movie)
     else:
         db_movie = db_query.first()
     total_sum = add_ratings(db_movie.ratings)

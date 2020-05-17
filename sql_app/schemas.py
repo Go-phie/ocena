@@ -98,16 +98,16 @@ class MovieBase(BaseModel):
     engine: str
 
 class MovieCreate(MovieBase):
-    pass
-
-class MovieComplete(MovieBase):
-    id: int
     description: Optional[str]
     size: Optional[str]
     year: Optional[str]
     download_link: Optional[str]
-    referral_id: Optional[str]
     cover_photo_link: Optional[str]
+
+class MovieComplete(MovieCreate):
+    id: int
+    referral_id: Optional[str]
+    
 
 class MovieReferral(MovieComplete):
 

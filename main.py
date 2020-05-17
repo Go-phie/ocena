@@ -79,7 +79,7 @@ def refer_to_movie(referral: schemas.ReferralCreate, db: Session = Depends(get_d
     crud.create_referral(db=db, referral=referral)
     return crud.get_referral_id(db=db, movie=schemas.MovieCreate(name=referral.movie_name, engine=referral.engine))
 
-@app.post("/referral/id", response_model=schemas.MovieReferral)
+@app.post("/referral/id/", response_model=schemas.MovieReferral)
 def get_referral_by_id(referral_id: str, db: Session = Depends(get_db)):
     """
     Get movie object by referral id
@@ -93,7 +93,7 @@ def download_movie(download: schemas.DownloadCreate, db: Session = Depends(get_d
     """
     return crud.create_download(db=db, download=download)
 
-@app.post("/download/highest", response_model=List[schemas.MovieDownloads])
+@app.post("/download/highest/", response_model=List[schemas.MovieDownloads])
 def filter_highest_downloads(filter_: schemas.DownloadFilter, db: Session = Depends(get_db)):
     """
     Get the most downloaded movies in a period
@@ -102,7 +102,7 @@ def filter_highest_downloads(filter_: schemas.DownloadFilter, db: Session = Depe
 
 
 @app.post("/movie/", response_model=schemas.Movie)
-def get_movie_by_schema(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
+def get_movie_by_schema(movie: schemas.MovieBase, db: Session = Depends(get_db)):
     """
     Return full schema of a movie
     """
