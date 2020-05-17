@@ -80,7 +80,16 @@ def get_movie_average_ratings(db: Session, movie: schemas.MovieCreate):
         return schemas.AverageRating(average_ratings=0, by=0)
 
 def create_or_update_rating(db: Session, spec_rating: schemas.SpecificRatingScore):
-    movie = create_movie_by_moviecreate(db, schemas.MovieCreate(name=spec_rating.movie_name, engine=spec_rating.engine))
+    movie = models.Movie(
+        name=spec_rating.movie_name,
+        engine=spec_rating.engine,
+        year=spec_rating.year,
+        description=spec_rating.description,
+        download_link=spec_rating.download_link,
+        size=spec_rating.size,
+        cover_photo_link=spec_rating.cover_photo_link,
+    )
+    movie = create_movie(db, movie)
     db_rating_query = get_rating_by_schema(db, schemas.IndexedRating(ip_address=spec_rating.ip_address, movie_id=movie.id))
     if db_rating_query.count() < 1 :
         db_rating = models.Rating(ip_address=spec_rating.ip_address, score=spec_rating.score, movie_id=movie.id)

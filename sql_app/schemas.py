@@ -17,6 +17,11 @@ class IndexedRating(RatingBase):
 
 class SpecificRatingScore(SpecificRating):
     score: str
+    description: str
+    size: str
+    year: str
+    download_link: str
+    cover_photo_link: str
 
 class Rating(RatingBase):
     id: int
