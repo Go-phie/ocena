@@ -115,8 +115,11 @@ def get_rating(db: Session, spec_rating: schemas.SpecificRating):
     """
     Gets the specific rating of a particular movie by an ip_address
     """
-    movie = create_movie_by_moviecreate(db, schemas.MovieCreate(name=spec_rating.movie_name, engine=spec_rating.engine))
-    rating = db.query(models.Rating).filter(models.Rating.ip_address==spec_rating.ip_address, models.Rating.movie_id==movie.id).first()
+    db_query = get_movie_by_schema(db, schemas.MovieCreate(name=spec_rating.movie_name, engine=spec_rating.engine))
+    if db_query >= 1:
+        rating = db.query(models.Rating).filter(models.Rating.ip_address==spec_rating.ip_address, models.Rating.movie_id==movie.id).first()
+    else:
+        return 0
     return rating
 
 
@@ -146,7 +149,7 @@ def get_number_of_downloads(db: Session, movie: schemas.MovieCreate):
     """
     db_query = get_movie_by_schema(db, movie)
     if db_query.count() < 1:
-        db_movie = create_movie_by_moviecreate(db, movie)
+        return 0
     else:
         db_movie = db_query.first()
     return len(db_movie.downloads)
@@ -216,7 +219,7 @@ def get_referral_id(db: Session, movie: schemas.MovieCreate):
     """
     db_query = get_movie_by_schema(db, movie)
     if db_query.count() < 1:
-        db_movie = create_movie_by_moviecreate(db, movie)
+        return "No referral id, save movie first"
     else:
         db_movie = db_query.first()
         if db_movie.referral_id == None:
