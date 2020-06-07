@@ -129,6 +129,7 @@ def get_rating(db: Session, spec_rating: schemas.SpecificRating):
     db_query = get_movie_by_schema(db, schemas.MovieCreate(
         name=spec_rating.movie_name, engine=spec_rating.engine))
     if db_query.count() >= 1:
+        movie = db_query.first()
         rating = db.query(models.Rating).filter(models.Rating.ip_address ==
                                                 spec_rating.ip_address, models.Rating.movie_id == movie.id).first()
     else:
