@@ -1,8 +1,10 @@
 import uuid
 import datetime
+from functools import lru_cache
 from sqlalchemy.orm import Session
 from sqlalchemy import exc
 from . import models, schemas
+from .database import HashableSession
 from utils import add_ratings, get_movie_download
 
 
@@ -171,7 +173,8 @@ def get_number_of_downloads(db: Session, movie: schemas.MovieCreate):
     return len(db_movie.downloads)
 
 
-def get_highest_downloads(db: Session, filter_: schemas.DownloadFilter):
+@lru_cache(maxsize=100)
+def get_highest_downloads(db: HashableSession, filter_: schemas.DownloadFilter):
     """
     Gets the x highest downloaded movies in the last period
     """

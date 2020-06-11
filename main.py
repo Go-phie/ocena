@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from sql_app import crud, models, schemas
-from sql_app.database import SessionLocal, engine
+from sql_app.database import SessionLocal, engine, HashableSession
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -95,11 +95,13 @@ def download_movie(download: schemas.DownloadCreate, db: Session = Depends(get_d
     return crud.create_download(db=db, download=download)
 
 @app.post("/download/highest/", response_model=List[schemas.MovieDownloads])
-def filter_highest_downloads(filter_: schemas.DownloadFilter, db: Session = Depends(get_db)):
+def filter_highest_downloads(filter_: schemas.DownloadFilter, db: HashableSession = Depends(get_db)):
     """
     Get the most downloaded movies in a period
     """
-    return crud.get_highest_downloads(db=db, filter_=filter_)
+    highest = crud.get_highest_downloads(db=db, filter_=filter_)
+    print(crud.get_highest_downloads.cache_info(), print(db.__hash__(), filter_.__hash__()))
+    return highest
 
 
 @app.post("/movie/", response_model=schemas.Movie)

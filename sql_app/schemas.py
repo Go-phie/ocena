@@ -60,6 +60,17 @@ class DownloadFilter(BaseModel):
     filter_num: int
     top: int
 
+    def __repr__(self):
+        day = datetime.today().strftime("%d%m%Y")
+        return f"Top {str(self.top)} in the last {str(self.filter_num)} {self.filter_by} on {day}"
+
+    def __hash__(self):
+        return hash(repr(self))
+    
+    def __eq__(self, other):
+        print(self.__hash__(), other.__hash__())
+        return self.__hash__() == other.__hash__()
+
 class Download(DownloadBase):
     id: int
     movie_id: int
