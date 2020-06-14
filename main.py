@@ -36,6 +36,7 @@ def get_db():
     finally:
         db.close()
 
+
 @app.post("/movie/ratings/average/", response_model=schemas.AverageRating)
 def get_average_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
     """
@@ -51,12 +52,14 @@ def get_ip_rating(spec_rating: schemas.SpecificRating, db: Session = Depends(get
     """
     return crud.get_rating(db=db, spec_rating=spec_rating)
 
+
 @app.post("/movie/downloads/", response_model=int)
 def get_downloads(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
     """
     Gets number of downloads of a movie
     """
     return crud.get_number_of_downloads(db=db, movie=movie)
+
 
 @app.post("/movie/referrals/", response_model=int)
 def get_referrals(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
@@ -65,12 +68,14 @@ def get_referrals(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
     """
     return crud.get_no_of_referrals(db=db, movie=movie)
 
+
 @app.post("/rate/", response_model=schemas.Rating)
 def create_or_update_rating(spec_rating: schemas.SpecificRatingScore, db: Session = Depends(get_db)):
     """
     Create or update a movie rating by an ip_address
     """
     return crud.create_or_update_rating(db=db, spec_rating=spec_rating)
+
 
 @app.post("/referral/", response_model=str)
 def refer_to_movie(referral: schemas.ReferralCreate, db: Session = Depends(get_db)):
@@ -80,12 +85,14 @@ def refer_to_movie(referral: schemas.ReferralCreate, db: Session = Depends(get_d
     crud.create_referral(db=db, referral=referral)
     return crud.get_referral_id(db=db, movie=schemas.MovieCreate(name=referral.movie_name, engine=referral.engine))
 
+
 @app.post("/referral/id/", response_model=schemas.MovieReferral)
-def get_referral_by_id(referral_id: str, db: Session = Depends(get_db)):
+def get_referral_by_id(referral_id: str, db: HashableSession = Depends(get_db)):
     """
     Get movie object by referral id
     """
     return crud.get_movie_by_referral_id(db=db, referral_id=referral_id)
+
 
 @app.post("/download/", response_model=schemas.Download)
 def download_movie(download: schemas.DownloadCreate, db: Session = Depends(get_db)):
@@ -93,6 +100,7 @@ def download_movie(download: schemas.DownloadCreate, db: Session = Depends(get_d
     Create a download object for a movie by ip_address
     """
     return crud.create_download(db=db, download=download)
+
 
 @app.post("/download/highest/", response_model=List[schemas.MovieDownloads])
 def filter_highest_downloads(filter_: schemas.DownloadFilter, db: HashableSession = Depends(get_db)):
@@ -110,6 +118,7 @@ def get_movie_by_schema(movie: schemas.MovieBase, db: Session = Depends(get_db))
     Return full schema of a movie
     """
     return crud.get_movie_by_schema(db=db, movie=movie).first()
+
 
 @app.post("/rating/", response_model=List[schemas.Rating])
 def get_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):

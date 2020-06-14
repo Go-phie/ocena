@@ -14,8 +14,8 @@ def get_movie(db: Session, movie_id: int):
     """
     return db.query(models.Movie).filter(models.Movie.id == movie_id).first()
 
-
-def get_movie_by_referral_id(db: Session, referral_id: str):
+@lru_cache(maxsize=200)
+def get_movie_by_referral_id(db: HashableSession, referral_id: str):
     """
     Get Movie by referral id
     """
