@@ -15,6 +15,7 @@ origins = [
     "http://gophie-ocena.herokuapp.com",
     "http://localhost:3000",
     "https://gophie.netlify.app",
+    "https://gophie-ssr.herokuapp.com",
     "https://gophie.cam",
 ]
 
