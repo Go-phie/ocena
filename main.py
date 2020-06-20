@@ -17,6 +17,7 @@ origins = [
     "https://gophie.netlify.app",
     "https://gophie-ssr.herokuapp.com",
     "https://gophie.cam",
+    "https://ssr.gophie.cam",
 ]
 
 app.add_middleware(
