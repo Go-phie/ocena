@@ -11,7 +11,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-origins = [
+ORIGINS = [
     "http://gophie-ocena.herokuapp.com",
     "http://localhost:3000",
     "https://gophie.netlify.app",
@@ -20,9 +20,17 @@ origins = [
     "https://ssr.gophie.cam",
 ]
 
+ENGINES = {
+    "netnaija": "NetNaija",
+    "fzmovies": "FzMovies",
+    "tvseries": "TvSeries",
+    "animeout": "AnimeOut",
+    "besthdmovies": "BestHDMovies",
+}
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -128,3 +136,16 @@ def get_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
     Retrieves all the rating objects of a movie
     """
     return crud.get_movie_ratings(db=db, movie=movie)
+
+
+@app.get("/list/", response_model=List[schemas.Movie])
+def list_movies(engine: str="netnaija", page:int=1, num:int=20, db: Session = Depends(get_db)):
+    """
+    Retrieves all the rating objects of a movie
+
+    engine: the engine to list data from
+    page: the page number
+    num: the number of results to return per page
+    """
+    movies = crud.list_movies(db=db, engine=ENGINES[engine.lower()], page=page, num=num)
+    return  movies

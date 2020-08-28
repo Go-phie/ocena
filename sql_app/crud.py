@@ -14,6 +14,15 @@ def get_movie(db: Session, movie_id: int):
     """
     return db.query(models.Movie).filter(models.Movie.id == movie_id).first()
 
+
+@lru_cache(maxsize=1000)
+def list_movies(db: Session, engine: str, page: int, num: int):
+    """
+    Get List of Movies. With pagination and a total of `num` rows per query
+    """
+    return list(db.query(models.Movie).filter(models.Movie.engine == engine).limit(num).offset(num * (page-1)))
+
+
 @lru_cache(maxsize=200)
 def get_movie_by_referral_id(db: HashableSession, referral_id: str):
     """
