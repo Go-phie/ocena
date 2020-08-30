@@ -20,14 +20,6 @@ ORIGINS = [
     "https://ssr.gophie.cam",
 ]
 
-ENGINES = {
-    "netnaija": "NetNaija",
-    "fzmovies": "FzMovies",
-    "tvseries": "TvSeries",
-    "animeout": "AnimeOut",
-    "besthdmovies": "BestHDMovies",
-}
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ORIGINS,
@@ -147,7 +139,7 @@ def list_movies(engine: str="netnaija", page:int=1, num:int=20, db: HashableSess
     page: the page number
     num: the number of results to return per page
     """
-    movies = crud.list_movies(db=db, engine=ENGINES[engine.lower()], page=page, num=num)
+    movies = crud.list_movies(db=db, engine=engine, page=page, num=num)
     return  movies
 
 @app.get("/search/", response_model=List[schemas.MovieReferral])
@@ -158,5 +150,5 @@ def search_movies(engine: str="netnaija", query: str="hello", page:int=1, num:in
     engine: the engine to list data from
     query: the search term urlencoded
     """
-    movies = crud.search_movies(db=db, engine=ENGINES[engine.lower()], query=query, page=page, num=num)
+    movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
     return movies

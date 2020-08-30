@@ -2,7 +2,7 @@ import uuid
 import datetime
 from functools import lru_cache
 from sqlalchemy.orm import Session
-from sqlalchemy import exc
+from sqlalchemy import exc, func
 from . import models, schemas
 from .database import HashableSession
 from utils import add_ratings, get_movie_download
@@ -20,7 +20,10 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
     """
     Get List of Movies. With pagination and a total of `num` rows per query
     """
-    return list(db.query(models.Movie).filter(models.Movie.engine == engine).limit(num).offset(num * (page-1)))
+    return list(db.query(models.Movie)\
+                .filter(
+                    func.lower(models.Movie.engine) == engine.lower())\
+                .limit(num).offset(num * (page-1)))
 
 @lru_cache(maxsize=1000)
 def search_movies(db: HashableSession, engine: str, query: str, page:int, num: int):
@@ -30,7 +33,7 @@ def search_movies(db: HashableSession, engine: str, query: str, page:int, num: i
     ret =  list(db.query(models.Movie)\
         .filter(\
             models.Movie.name.ilike("%"+query+"%"),
-            models.Movie.engine == engine
+            func.lower(models.Movie.engine) == engine.lower()
             )\
         .limit(num)\
         .offset(num *(page-1))\

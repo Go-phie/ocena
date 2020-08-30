@@ -1,6 +1,0 @@
-HTTP/1.1 307 Temporary Redirect
-date: Sun, 30 Aug 2020 21:15:58 GMT
-server: uvicorn
-location: http://127.0.0.1:8000/search/?page=3&query=Hello+world&engine=besthdmovies
-transfer-encoding: chunked
-
