@@ -138,10 +138,10 @@ def get_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
     return crud.get_movie_ratings(db=db, movie=movie)
 
 
-@app.get("/list/", response_model=List[schemas.Movie])
-def list_movies(engine: str="netnaija", page:int=1, num:int=20, db: Session = Depends(get_db)):
+@app.get("/list/", response_model=List[schemas.MovieReferral])
+def list_movies(engine: str="netnaija", page:int=1, num:int=20, db: HashableSession = Depends(get_db)):
     """
-    Retrieves all the rating objects of a movie
+    Lists movies from an engine
 
     engine: the engine to list data from
     page: the page number
@@ -149,3 +149,14 @@ def list_movies(engine: str="netnaija", page:int=1, num:int=20, db: Session = De
     """
     movies = crud.list_movies(db=db, engine=ENGINES[engine.lower()], page=page, num=num)
     return  movies
+
+@app.get("/search/", response_model=List[schemas.MovieReferral])
+def search_movies(engine: str="netnaija", query: str="hello", page:int=1, num:int=20, db: HashableSession = Depends(get_db)):
+    """
+    Searches movies from an engine using partial ratio
+
+    engine: the engine to list data from
+    query: the search term urlencoded
+    """
+    movies = crud.search_movies(db=db, engine=ENGINES[engine.lower()], query=query, page=page, num=num)
+    return movies

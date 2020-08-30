@@ -16,12 +16,26 @@ def get_movie(db: Session, movie_id: int):
 
 
 @lru_cache(maxsize=1000)
-def list_movies(db: Session, engine: str, page: int, num: int):
+def list_movies(db: HashableSession, engine: str, page: int, num: int):
     """
     Get List of Movies. With pagination and a total of `num` rows per query
     """
     return list(db.query(models.Movie).filter(models.Movie.engine == engine).limit(num).offset(num * (page-1)))
 
+@lru_cache(maxsize=1000)
+def search_movies(db: HashableSession, engine: str, query: str, page:int, num: int):
+    """
+    Search movies using fuzzy partial
+    """
+    ret =  list(db.query(models.Movie)\
+        .filter(\
+            models.Movie.name.ilike("%"+query+"%"),
+            models.Movie.engine == engine
+            )\
+        .limit(num)\
+        .offset(num *(page-1))\
+        )
+    return ret
 
 @lru_cache(maxsize=200)
 def get_movie_by_referral_id(db: HashableSession, referral_id: str):
