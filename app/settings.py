@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         "https://gophie.cam",
         "https://ssr.gophie.cam",
     ]
+    origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"  # allow access from staging builds
 
 
 settings = Settings()

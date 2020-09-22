@@ -16,7 +16,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_origin_regex="https://deploy-preview-\d+--gophie\.netlify\.app",
+    allow_origin_regex=settings.origins_regex
 )
 
 app.include_router(router)

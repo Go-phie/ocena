@@ -1,9 +1,11 @@
 from typing import List
+import requests
 
 from fastapi import Depends, FastAPI, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 
 from app.settings import settings
+from app import utils
 from app.models import SessionLocal, schemas, crud, HashableSession, get_db
 
 router = APIRouter()
@@ -109,7 +111,9 @@ def list_movies(engine: str = "netnaija", page: int = 1, num: int = 20, db: Hash
     page: the page number
     num: the number of results to return per page
     """
-    movies = crud.list_movies(db=db, engine=engine, page=page, num=num)
+    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/list", {"engine": engine, "page": page}, engine)
+    if not movies:
+        movies = crud.list_movies(db=db, engine=engine, page=page, num=num)
     return movies
 
 
@@ -121,5 +125,7 @@ def search_movies(engine: str = "netnaija", query: str = "hello", page: int = 1,
     engine: the engine to list data from
     query: the search term urlencoded
     """
-    movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
+    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", {"query": query, "engine": engine, "page": page}, engine)
+    if not movies:
+        movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
     return movies
