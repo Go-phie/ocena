@@ -18,3 +18,13 @@ alembic revision --autogenerate -m "Commit message"
 ## Deployment
 
 View the deployed API docs on usage at [Heroku](https://gophie-ocena.herokuapp.com/docs)
+
+## Development
+
+```bash
+  pip install -r requirements.txt
+
+  uvicorn main:app --debug
+```
+
+Visit http://localhost:8000/docs to interact with API

@@ -2,7 +2,7 @@ import datetime
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from app.models import Base
 
 
 class Movie(Base):
@@ -26,7 +26,7 @@ class Movie(Base):
 
 class Download(Base):
     __tablename__ = "downloads"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
@@ -34,15 +34,17 @@ class Download(Base):
 
     owner = relationship("Movie", back_populates="downloads")
 
+
 class Referral(Base):
     __tablename__ = "referrals"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
 
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship("Movie", back_populates="referrals")
+
 
 class Rating(Base):
     __tablename__ = "ratings"
@@ -54,4 +56,3 @@ class Rating(Base):
     score = Column(Integer)
 
     owner = relationship("Movie", back_populates="ratings")
-

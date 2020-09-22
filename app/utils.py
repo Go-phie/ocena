@@ -1,10 +1,12 @@
 import collections
 
+
 def add_ratings(ratings_list):
     counter = 0
     for rating in ratings_list:
         counter += rating.score
     return counter
+
 
 def get_movie_download(download_queryset):
     movie_download = collections.Counter()

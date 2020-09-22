@@ -1,23 +1,19 @@
-import os
 import datetime
+
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import Session
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if not os.getenv("DATABASE_URL", None):
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{BASE_DIR}/sql_app.db"
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-    )
-else:
-    SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL
-    )
+from app import settings
 
 Base = declarative_base()
+
+if settings.debug:
+    engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(settings.database_url)
+
 
 class HashableSession(Session):
     def __init__(self, *args, **kwargs):
@@ -32,4 +28,14 @@ class HashableSession(Session):
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
 
+
 SessionLocal = sessionmaker(autocommit=False, class_=HashableSession, autoflush=False, bind=engine)
+
+
+def get_db():
+    """ Get Database Object"""
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
