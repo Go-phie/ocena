@@ -6,13 +6,13 @@ from sqlalchemy.orm import Session
 
 from app.settings import settings
 from app import utils
-from app.models import SessionLocal, schemas, crud, HashableSession, get_db
+from app.models import SessionLocal, schemas, crud, HashableSession, HashableParams, get_db
 
 router = APIRouter()
 
 
 @router.post("/movie/ratings/average/", response_model=schemas.AverageRating)
-def get_average_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
+def get_average_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     """
     Get average movie ratings and number of people who have rated
     """
@@ -28,7 +28,7 @@ def get_ip_rating(spec_rating: schemas.SpecificRating, db: Session = Depends(get
 
 
 @router.post("/movie/downloads/", response_model=int)
-def get_downloads(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
+def get_downloads(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     """
     Gets number of downloads of a movie
     """
@@ -36,7 +36,7 @@ def get_downloads(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/movie/referrals/", response_model=int)
-def get_referrals(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
+def get_referrals(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     """
     Gets total number of referrals of a movie
     """
@@ -51,13 +51,12 @@ def create_or_update_rating(spec_rating: schemas.SpecificRatingScore, db: Sessio
     return crud.create_or_update_rating(db=db, spec_rating=spec_rating)
 
 
-@router.post("/referral/", response_model=str)
+@router.post("/referral/", response_model=schemas.Referral)
 def refer_to_movie(referral: schemas.ReferralCreate, db: Session = Depends(get_db)):
     """
     Create a referral object for a movie and return referral id
     """
-    crud.create_referral(db=db, referral=referral)
-    return crud.get_referral_id(db=db, movie=schemas.MovieCreate(name=referral.movie_name, engine=referral.engine))
+    return crud.create_referral(db=db, referral=referral)
 
 
 @router.post("/referral/id/", response_model=schemas.MovieReferral)
@@ -95,7 +94,7 @@ def get_movie_by_schema(movie: schemas.MovieBase, db: Session = Depends(get_db))
 
 
 @router.post("/rating/", response_model=List[schemas.Rating])
-def get_ratings(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
+def get_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     """
     Retrieves all the rating objects of a movie
     """
@@ -111,7 +110,12 @@ def list_movies(engine: str = "netnaija", page: int = 1, num: int = 20, db: Hash
     page: the page number
     num: the number of results to return per page
     """
-    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/list", {"engine": engine, "page": page}, engine)
+    params = HashableParams({
+        "num": num,
+        "engine": engine,
+        "page": page
+    })
+    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/list", params, engine, db)
     if not movies:
         movies = crud.list_movies(db=db, engine=engine, page=page, num=num)
     return movies
@@ -125,7 +129,12 @@ def search_movies(engine: str = "netnaija", query: str = "hello", page: int = 1,
     engine: the engine to list data from
     query: the search term urlencoded
     """
-    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", {"query": query, "engine": engine, "page": page}, engine)
+    params = HashableParams({
+        "query": query,
+        "engine": engine,
+        "page": page
+    })
+    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", params, engine, db)
     if not movies:
         movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
     return movies

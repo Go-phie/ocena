@@ -14,7 +14,6 @@ if settings.debug:
 else:
     engine = create_engine(settings.database_url)
 
-
 class HashableSession(Session):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,6 +27,15 @@ class HashableSession(Session):
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
 
+class HashableParams(dict):
+    def __repr__(self):
+        return ", ".join([str(val) for val in self.values()])
+
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        return self.__hash__() == other.__hash__()
 
 SessionLocal = sessionmaker(autocommit=False, class_=HashableSession, autoflush=False, bind=engine)
 

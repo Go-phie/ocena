@@ -5,14 +5,28 @@ from pydantic import BaseModel
 
 # Rating schemas
 
+class MovieORM(BaseModel):
+    description: Optional[str]
+    size: Optional[str]
+    year: Optional[str]
+    download_link: Optional[str]
+    cover_photo_link: Optional[str]
+    quality: Optional[str]
+    is_series: Optional[bool]
+    s_download_link : Optional[dict]
+    category: Optional[str]
+    cast: Optional[str]
+    upload_date: Optional[str]
+    subtitle_link: Optional[str]
+    subtitle_links: Optional[dict]
+    imdb_link: Optional[str]
+    tags: Optional[str]
 
 class RatingBase(BaseModel):
     ip_address: str
 
-
 class SpecificRating(RatingBase):
-    movie_name: str
-    engine: str
+    referral_id: str
 
 
 class IndexedRating(RatingBase):
@@ -21,12 +35,6 @@ class IndexedRating(RatingBase):
 
 class SpecificRatingScore(SpecificRating):
     score: str
-    description: str
-    size: str
-    year: str
-    download_link: str
-    cover_photo_link: str
-
 
 class Rating(RatingBase):
     id: int
@@ -55,14 +63,7 @@ class DownloadBase(BaseModel):
 
 
 class DownloadCreate(DownloadBase):
-    movie_name: str
-    engine: str
-    description: str
-    size: str
-    year: str
-    download_link: str
-    cover_photo_link: str
-
+    referral_id: str
 
 class DownloadFilter(BaseModel):
     filter_by: str
@@ -97,14 +98,7 @@ class ReferralBase(BaseModel):
 
 
 class ReferralCreate(ReferralBase):
-    movie_name: str
-    engine: str
-    description: str
-    size: str
-    year: str
-    download_link: str
-    cover_photo_link: str
-
+    referral_id: str
 
 class Referral(ReferralBase):
     id: int
@@ -121,14 +115,11 @@ class MovieBase(BaseModel):
     name: str
     engine: str
 
+class MovieRating(BaseModel):
+    referral_id: str
 
-class MovieCreate(MovieBase):
-    description: Optional[str]
-    size: Optional[str]
-    year: Optional[str]
-    download_link: Optional[str]
-    cover_photo_link: Optional[str]
-
+class MovieCreate(MovieBase, MovieORM):
+    pass
 
 class MovieComplete(MovieCreate):
     id: int

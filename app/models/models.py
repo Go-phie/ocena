@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint, JSON
 from sqlalchemy.orm import relationship
 
 from app.models import Base
@@ -18,6 +18,17 @@ class Movie(Base):
     download_link = Column(String)
     referral_id = Column(String)
     cover_photo_link = Column(String)
+    quality = Column(String)
+    is_series = Column(Boolean)
+    s_download_link = Column(JSON)
+    category = Column(String)
+    cast = Column(String)
+    upload_date = Column(String)
+    subtitle_link = Column(String)
+    subtitle_links = Column(JSON)
+    imdb_link = Column(String)
+    tags = Column(String)
+
 
     referrals = relationship("Referral", back_populates="owner")
     downloads = relationship("Download", back_populates="owner")
