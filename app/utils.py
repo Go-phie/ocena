@@ -18,6 +18,7 @@ class InvalidResponse(Exception):
     """ If response is not a valid object"""
     pass
 
+
 class GophieUnresponsive(Exception):
     """ If gophie does not return 200 """
     pass
@@ -75,7 +76,7 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
         return "reload_cache"
     except InvalidResponse as e:
         logging.error(str(e))
-        return 
+        return
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
