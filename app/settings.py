@@ -10,7 +10,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class Settings(BaseSettings):
     app_name: str = "Ocena"
-    gophie_host: str = ""
+    gophie_host: str = "https://deploy-gophie.herokuapp.com"
+    gophie_access_key: str
     database_url: str = f"sqlite:///{BASE_DIR}/db.sqlite3"
     debug: bool = True
     origins: list = [
