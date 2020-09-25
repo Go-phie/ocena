@@ -1,3 +1,4 @@
+import os
 import requests
 import uuid
 import re
@@ -41,7 +42,8 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
     """ Gets movies from remote url """
     movies = []
     try:
-        response = requests.get(url, params)
+        response = requests.get(url, params, 
+                                headers=(f'Authorization: Bearer {os.getenv("ACCESS_TOKEN", None)}'))
         if response.status_code != 200 or response.json() in ([], None):
             raise Exception(f"Invalid Response from {settings.gophie_host}")
     except Exception as e:
