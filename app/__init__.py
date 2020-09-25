@@ -21,7 +21,9 @@ app.add_middleware(
 
 app.include_router(router)
 
-models.Base.metadata.create_all(bind=engine)
+# keeps clashing with alembic for table creation
+# Uncomment to use poor man's table creation
+# models.Base.metadata.create_all(bind=engine)
 
 
 def get_db():
