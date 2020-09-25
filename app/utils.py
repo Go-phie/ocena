@@ -41,11 +41,13 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
     """ Gets movies from remote url """
     movies = []
     try:
-        response = requests.get(url, params)
+        headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
+        response = requests.get(url, params, headers=headers)
         if response.status_code != 200 or response.json() in ([], None):
-            raise Exception(f"Invalid Response from {settings.gophie_host}")
+            raise Exception(f"Invalid Response from {settings.gophie_host}: {response.content}")
     except Exception as e:
         logging.error(str(e))
+        return
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
