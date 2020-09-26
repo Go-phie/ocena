@@ -13,7 +13,7 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - pytest
+  - alembic upgrade head && pytest
 
 deploy:
   provider: heroku
