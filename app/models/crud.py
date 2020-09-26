@@ -16,7 +16,7 @@ def get_movie(db: Session, movie_id: int):
     return db.query(models.Movie).filter(models.Movie.id == movie_id).first()
 
 
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize=4096)
 def list_movies(db: HashableSession, engine: str, page: int, num: int):
     """
     Get List of Movies. With pagination and a total of `num` rows per query
@@ -27,7 +27,7 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
                 .limit(num).offset(num * (page-1)))
 
 
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize=4096)
 def search_movies(db: HashableSession, engine: str, query: str, page: int, num: int):
     """
     Search movies using fuzzy partial
@@ -40,7 +40,7 @@ def search_movies(db: HashableSession, engine: str, query: str, page: int, num: 
                 )
 
 
-@lru_cache(maxsize=200)
+@lru_cache(maxsize=256)
 def get_movie_by_referral_id(db: HashableSession, referral_id: str):
     """
     Get Movie by referral id
@@ -106,7 +106,7 @@ def get_movie_ratings(db: Session, movie: schemas.MovieRating):
     """
     Get all rating objects of a movie
     """
-    movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
+    movie = db.query(models.Movie).filter(models.Movie.referral_id == movie.referral_id).first()
     if movie:
         return movie.ratings
     else:
@@ -117,7 +117,7 @@ def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):
     """
     Get the average ratings and number of raters of a particular movie
     """
-    db_movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
+    db_movie = db.query(models.Movie).filter(models.Movie.referral_id == movie.referral_id).first()
     total_sum = add_ratings(db_movie.ratings)
     if len(db_movie.ratings) > 0:
         average_ratings = total_sum/len(db_movie.ratings)
@@ -127,7 +127,7 @@ def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):
 
 
 def create_or_update_rating(db: Session, spec_rating: schemas.SpecificRatingScore):
-    movie = db.query(models.Movie).filter(models.Movie.referral_id==spec_rating.referral_id).first()
+    movie = db.query(models.Movie).filter(models.Movie.referral_id == spec_rating.referral_id).first()
     db_rating_query = get_rating_by_schema(db, schemas.IndexedRating(
         ip_address=spec_rating.ip_address, movie_id=movie.id))
     if db_rating_query.count() < 1:
@@ -146,7 +146,7 @@ def get_rating(db: Session, spec_rating: schemas.SpecificRating):
     """
     Gets the specific rating of a particular movie by an ip_address
     """
-    db_query = db.query(models.Movie).filter(models.Movie.referral_id==spec_rating.referral_id)
+    db_query = db.query(models.Movie).filter(models.Movie.referral_id == spec_rating.referral_id)
     if db_query.count() >= 1:
         movie = db_query.first()
         rating = db.query(models.Rating).filter(models.Rating.ip_address ==
@@ -160,7 +160,7 @@ def create_download(db: Session, download: schemas.DownloadCreate):
     """
     Creates a particular download object
     """
-    movie = db.query(models.Movie).filter(models.Movie.referral_id==download.referral_id).first()
+    movie = db.query(models.Movie).filter(models.Movie.referral_id == download.referral_id).first()
     db_download = models.Download(
         movie_id=movie.id, ip_address=download.ip_address, datetime=datetime.datetime.utcnow())
     db.add(db_download)
@@ -173,7 +173,7 @@ def get_number_of_downloads(db: Session, movie: schemas.MovieRating):
     """
     Get number of downloads
     """
-    db_query = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id)
+    db_query = db.query(models.Movie).filter(models.Movie.referral_id == movie.referral_id)
     if db_query.count() < 1:
         return 0
     else:
@@ -181,7 +181,7 @@ def get_number_of_downloads(db: Session, movie: schemas.MovieRating):
     return len(db_movie.downloads)
 
 
-@lru_cache(maxsize=100)
+@lru_cache(maxsize=128)
 def get_highest_downloads(db: HashableSession, filter_: schemas.DownloadFilter):
     """
     Gets the x highest downloaded movies in the last period
@@ -225,7 +225,7 @@ def create_referral(db: Session, referral: schemas.ReferralCreate):
     """
     Creates a particular referral object (for data tracking purposes)
     """
-    movie = db.query(models.Movie).filter(models.Movie.referral_id==referral.referral_id).first()
+    movie = db.query(models.Movie).filter(models.Movie.referral_id == referral.referral_id).first()
     db_referral = models.Referral(
         movie_id=movie.id, ip_address=referral.ip_address, datetime=datetime.datetime.utcnow())
     db.add(db_referral)
@@ -238,6 +238,5 @@ def get_no_of_referrals(db: Session, movie: schemas.MovieRating):
     """
     Get number of referrals
     """
-    db_movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
+    db_movie = db.query(models.Movie).filter(models.Movie.referral_id == movie.referral_id).first()
     return len(db_movie.referrals)
-

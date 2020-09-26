@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
@@ -14,28 +14,33 @@ if settings.debug:
 else:
     engine = create_engine(settings.database_url)
 
+
 class HashableSession(Session):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def __repr__(self):
-        return datetime.datetime.today().strftime("%d%m%Y")
+        return str(datetime.now().date())
 
     def __hash__(self):
         return hash(repr(self))
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
+
 
 class HashableParams(dict):
     def __repr__(self):
-        return ", ".join([str(val) for val in self.values()])
+        x = ", ".join([str(val) for val in self.values()])
+        x += f":-{str(datetime.now().date())}"
+        return x
 
     def __hash__(self):
         return hash(repr(self))
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
+
 
 SessionLocal = sessionmaker(autocommit=False, class_=HashableSession, autoflush=False, bind=engine)
 

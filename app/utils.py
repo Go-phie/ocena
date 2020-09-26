@@ -65,7 +65,7 @@ def dict_to_model(params: HashableParams, movie_dict: dict):
     return models.Movie(**movie_dict)
 
 
-@lru_cache(maxsize=2000)
+@lru_cache(maxsize=4096)
 def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: HashableSession):
     """ Gets movies from remote url """
     movies = []
@@ -86,5 +86,4 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
                 movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
                 movies.append(cleaned_movie)
-    print(movies)
     return movies

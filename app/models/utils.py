@@ -45,7 +45,7 @@ def column_windows(session, column, windowsize):
         yield int_for_range(start, end)
 
 
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize=1024)
 def windowed_query(q: HashableSession, column, windowsize):
     """"Break a Query into windows on a given column."""
     return list(q.filter(whereclause).order_by(column))
