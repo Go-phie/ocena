@@ -22,7 +22,7 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
     Get List of Movies. With pagination and a total of `num` rows per query
     """
     return list(db.query(models.Movie)
-                .order_by(models.Movie.saved_on.desc())
+                .order_by(models.Movie.date_created.desc())
                 .filter(func.lower(models.Movie.engine) == engine.lower())
                 .limit(num).offset(num * (page-1)))
 
@@ -85,7 +85,7 @@ def create_movie(db: Session, db_movie: models.Movie):
         movie.subtitle_links = db_movie.subtitle_links if db_movie.subtitle_links else movie.subtitle_links
         movie.imdb_link = db_movie.imdb_link if db_movie.imdb_link else movie.imdb_link
         movie.tags = db_movie.tags if db_movie.tags else movie.tags
-        movie.saved_on = db_movie.saved_on if db_movie.saved_on else movie.saved_on
+        movie.date_created = db_movie.date_created if db_movie.date_created else movie.date_created
 
         if movie.referral_id == None:
             movie.referral_id = str(uuid.uuid4())

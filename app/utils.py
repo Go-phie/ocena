@@ -34,7 +34,7 @@ def dict_to_model(params: HashableParams, movie_dict: dict):
         "engine": movie_dict["source"],
         "name": movie_dict["title"],
         "referral_id": str(uuid.uuid4()),
-        "saved_on": saved_on,
+        "date_created": saved_on,
     }
     del movie_dict["index"], movie_dict["source"], movie_dict["title"]
     movie_dict.update(update)

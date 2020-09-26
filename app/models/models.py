@@ -14,7 +14,7 @@ class Movie(Base):
     
     # meta field names
     id = Column(Integer, primary_key=True, index=True)
-    saved_on = Column(DateTime)
+    date_created = Column(DateTime)
     #actual field names mapped from gophie_core
     name = Column(String)
     engine = Column(String)
