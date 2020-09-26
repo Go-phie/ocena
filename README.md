@@ -14,12 +14,7 @@ Ocena basically means "Rating" in Polish. It is the service responsible for hand
 # alembic autogenerate revision
 alembic revision --autogenerate -m "Commit message"
 ```
-## Development
 
-```bash
-  pip install -r requirements.txt
+## Deployment
 
-  uvicorn main:app --debug
-```
-
-Visit http://localhost:8000/docs to interact with API
+View the deployed API docs on usage at [Heroku](https://gophie-ocena.herokuapp.com/docs)
