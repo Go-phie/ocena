@@ -14,6 +14,11 @@ from app.models import models, crud
 camel_to_snake_pattern = re.compile(r'(?<!^)(?=[A-Z])')
 
 
+class GophieHostException(Exception):
+    """ Generic Gophie Host Exception """
+    pass
+
+
 class InvalidResponse(Exception):
     """ If response is not a valid object"""
     pass
@@ -68,15 +73,12 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
         headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
         response = requests.get(url, params, headers=headers)
         if response.status_code != 200:
-            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host}: {response.content}")
+            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host}: ({response.status_code}): {response.content}")
         if response.json() in ([], None):
-            raise InvalidResponse(f"Response from {settings.gophie_host}: {response.content}")
-    except GophieUnresponsive as e:
+            raise InvalidResponse(f"Empty Response from {settings.gophie_host}: {response.content}")
+    except Exception as e:
         logging.error(str(e))
-        return "reload_cache"
-    except InvalidResponse as e:
-        logging.error(str(e))
-        return
+        raise GophieHostException(f"Invalid Response from {settings.gophie_host}: {str(e)}")
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
@@ -84,4 +86,5 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
                 movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
                 movies.append(cleaned_movie)
+    print(movies)
     return movies

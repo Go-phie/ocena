@@ -1,4 +1,5 @@
 from typing import List
+import contextlib
 import requests
 import logging
 
@@ -116,10 +117,9 @@ def list_movies(engine: str = "netnaija", page: int = 1, num: int = 20, db: Hash
         "engine": engine,
         "page": page
     })
-    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/list", params, engine, db)
-    if movies == "reload_cache":
-        utils.get_movies_from_remote.cache_clear()
-        movies = None
+    movies = []
+    with contextlib.suppress(utils.GophieHostException):
+        movies = utils.get_movies_from_remote(f"{settings.gophie_host}/list", params, engine, db)
     if not movies:
         movies = crud.list_movies(db=db, engine=engine, page=page, num=num)
         logging.info(utils.get_movies_from_remote.cache_info())
@@ -139,10 +139,9 @@ def search_movies(engine: str = "netnaija", query: str = "hello", page: int = 1,
         "engine": engine,
         "page": page
     })
-    movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", params, engine, db)
-    if movies == "reload_cache":
-        utils.get_movies_from_remote.cache_clear()
-        movies = None
+    movies = []
+    with contextlib.suppress(utils.GophieHostException):
+        movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", params, engine, db)
     if not movies:
         movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
         logging.info(utils.get_movies_from_remote.cache_info())
