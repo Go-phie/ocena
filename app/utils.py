@@ -28,14 +28,23 @@ def keys_to_snake_case(d):
 
 def dict_to_model(params: HashableParams, movie_dict: dict):
     """ converts a movie_dict to model """
-    # obtain datetime to use for saved_on
-    saved_on = datetime.today() - timedelta(days=int(params["page"]))
     update = {
         "engine": movie_dict["source"],
         "name": movie_dict["title"],
         "referral_id": str(uuid.uuid4()),
-        "date_created": saved_on,
     }
+    # A way to ensure that the recent movies stack at the top of the page
+    # Dynamically assign "date_created" attribute so that
+    # older movies get pushed further when ordered by desc days
+    # and more recent movies cluster at the top
+    if params.get("num", None):
+        date_created = datetime.today() - timedelta(days=int(params["page"]))
+        update["date_created"] = date_created
+    else:
+        # searched movies will retain their original date_created
+        # so as not to pollute the clustering process
+        update["date_created"] = None
+
     del movie_dict["index"], movie_dict["source"], movie_dict["title"]
     movie_dict.update(update)
     return models.Movie(**movie_dict)
