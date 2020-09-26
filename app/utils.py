@@ -12,6 +12,13 @@ from app.models import models, crud
 # Pattern for converting camel to snake case, used in parsing json response
 camel_to_snake_pattern = re.compile(r'(?<!^)(?=[A-Z])')
 
+class InvalidResponse(Exception):
+    """ If response is not a valid object"""
+    pass
+
+class GophieUnresponsive(Exception):
+    """ If gophie does not return 200 """
+    pass
 
 def camel_case_to_snake_case(s):
     return camel_to_snake_pattern.sub('_', s).lower()
@@ -44,11 +51,16 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
     try:
         headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
         response = requests.get(url, params, headers=headers)
-        if response.status_code != 200 or response.json() in ([], None):
-            raise Exception(f"Invalid Response from {settings.gophie_host}: {response.content}")
-    except Exception as e:
+        if response.status_code != 200:
+            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host}: {response.content}")
+        if response.json() in ([], None):
+            raise InvalidResponse(f"Response from {settings.gophie_host}: {response.content}")
+    except GophieUnresponsive as e:
         logging.error(str(e))
-        return
+        return "reload_cache"
+    except InvalidResponse as e:
+        logging.error(str(e))
+        return 
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
