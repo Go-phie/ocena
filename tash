@@ -1,0 +1,119 @@
+[1m[0m[1m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[1mmodified: app/models/crud.py
+[1m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[36m[1m[38;5;13m@ app/models/crud.py:59 @[1m[1m[38;5;146m def get_rating_by_schema(db: Session, rating: schemas.IndexedRating):[0m
+    return db.query(models.Rating).filter(models.Rating.ip_address == rating.ip_address, models.Rating.movie_id == rating.movie_id)[m
+[m
+[m
+[1m[38;5;2m[32m[m[32m# TODO Improve function performance[m
+[0mdef create_movie(db: Session, db_movie: models.Movie):[m
+    """[m
+    Attempts to create a movie, If exist retrieves the movie[m
+[36m[1m[38;5;13m@ app/models/crud.py:89 @[1m[1m[38;5;146m def create_movie(db: Session, db_movie: models.Movie):[0m
+        movie.subtitle_links = db_movie.subtitle_links if db_movie.subtitle_links else movie.subtitle_links[m
+        movie.imdb_link = db_movie.imdb_link if db_movie.imdb_link else movie.imdb_link[m
+        movie.tags = db_movie.tags if db_movie.tags else movie.tags[m
+[1m[38;5;1m[31m        movie.date_created = db_movie.date_created if db_movie.date_created else movie.date_created[m
+[0m[m
+        if movie.referral_id == None:[m
+            movie.referral_id = str(uuid.uuid4())[m
+[36m[1m[38;5;13m@ app/models/crud.py:109 @[1m[1m[38;5;146m def get_movie_ratings(db: Session, movie: schemas.MovieRating):[0m
+    """[m
+    Get all rating objects of a movie[m
+    """[m
+[1m[38;5;1m[1;31m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mmovie.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mmovie.referral_id).first()[m
+[0m    if movie:[m
+        return movie.ratings[m
+    else:[m
+[36m[1m[38;5;13m@ app/models/crud.py:120 @[1m[1m[38;5;146m def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):[0m
+    """[m
+    Get the average ratings and number of raters of a particular movie[m
+    """[m
+[1m[38;5;1m[1;31m    db_movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mmovie.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    db_movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mmovie.referral_id).first()[m
+[0m    total_sum = add_ratings(db_movie.ratings)[m
+    if len(db_movie.ratings) > 0:[m
+        average_ratings = total_sum/len(db_movie.ratings)[m
+[36m[1m[38;5;13m@ app/models/crud.py:130 @[1m[1m[38;5;146m def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):[0m
+[m
+[m
+def create_or_update_rating(db: Session, spec_rating: schemas.SpecificRatingScore):[m
+[1m[38;5;1m[1;31m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mspec_rating.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mspec_rating.referral_id).first()[m
+[0m    db_rating_query = get_rating_by_schema(db, schemas.IndexedRating([m
+        ip_address=spec_rating.ip_address, movie_id=movie.id))[m
+    if db_rating_query.count() < 1:[m
+[36m[1m[38;5;13m@ app/models/crud.py:149 @[1m[1m[38;5;146m def get_rating(db: Session, spec_rating: schemas.SpecificRating):[0m
+    """[m
+    Gets the specific rating of a particular movie by an ip_address[m
+    """[m
+[1m[38;5;1m[1;31m    db_query = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mspec_rating.referral_id)[m
+[0m[1m[38;5;2m[1;32m    db_query = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mspec_rating.referral_id)[m
+[0m    if db_query.count() >= 1:[m
+        movie = db_query.first()[m
+        rating = db.query(models.Rating).filter(models.Rating.ip_address ==[m
+[36m[1m[38;5;13m@ app/models/crud.py:163 @[1m[1m[38;5;146m def create_download(db: Session, download: schemas.DownloadCreate):[0m
+    """[m
+    Creates a particular download object[m
+    """[m
+[1m[38;5;1m[1;31m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mdownload.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mdownload.referral_id).first()[m
+[0m    db_download = models.Download([m
+        movie_id=movie.id, ip_address=download.ip_address, datetime=datetime.datetime.utcnow())[m
+    db.add(db_download)[m
+[36m[1m[38;5;13m@ app/models/crud.py:176 @[1m[1m[38;5;146m def get_number_of_downloads(db: Session, movie: schemas.MovieRating):[0m
+    """[m
+    Get number of downloads[m
+    """[m
+[1m[38;5;1m[1;31m    db_query = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mmovie.referral_id)[m
+[0m[1m[38;5;2m[1;32m    db_query = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mmovie.referral_id)[m
+[0m    if db_query.count() < 1:[m
+        return 0[m
+    else:[m
+[36m[1m[38;5;13m@ app/models/crud.py:228 @[1m[1m[38;5;146m def create_referral(db: Session, referral: schemas.ReferralCreate):[0m
+    """[m
+    Creates a particular referral object (for data tracking purposes)[m
+    """[m
+[1m[38;5;1m[1;31m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mreferral.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mreferral.referral_id).first()[m
+[0m    db_referral = models.Referral([m
+        movie_id=movie.id, ip_address=referral.ip_address, datetime=datetime.datetime.utcnow())[m
+    db.add(db_referral)[m
+[36m[1m[38;5;13m@ app/models/crud.py:241 @[1m[1m[38;5;146m def get_no_of_referrals(db: Session, movie: schemas.MovieRating):[0m
+    """[m
+    Get number of referrals[m
+    """[m
+[1m[38;5;1m[1;31m    db_movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;31;48;5;52m==[m[1;31mmovie.referral_id).first()[m
+[0m[1m[38;5;2m[1;32m    db_movie = db.query(models.Movie).filter(models.Movie.referral_id[m[1;32;48;5;22m == [m[1;32mmovie.referral_id).first()[m
+[0m    return len(db_movie.referrals)[m
+[7m[31m [m
+[1m[0m[1m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[1mmodified: app/models/models.py
+[1m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[36m[1m[38;5;13m@ app/models/models.py:4 @[1m[0m
+import datetime[m
+from sqlalchemy import (Boolean, Column, ForeignKey,[m
+[1m[38;5;1m[1;31m                        Integer, DateTime, String,[m[1;31;48;5;52m [m[1;31m[m
+[0m[1m[38;5;2m[1;32m                        Integer, DateTime, String,[m[1;32;48;5;22m[m[1;32m[m
+[0m                        UniqueConstraint, JSON, DateTime,[m
+[1m[38;5;1m[1;31m                       [m[1;31;48;5;52m[m[1;31m)[m
+[0m[1m[38;5;2m[1;32m                       [m[1;32;48;5;22m [m[1;32m)[m
+[0mfrom sqlalchemy.orm import relationship[m
+[m
+from app.models import Base[m
+[36m[1m[38;5;13m@ app/models/models.py:14 @[1m[1m[38;5;146m from app.models import Base[0m
+class Movie(Base):[m
+    __tablename__ = "movies"[m
+    __table_args__ = (UniqueConstraint('name', 'engine'),)[m
+[1m[38;5;1m[31m    [m
+[0m[7m[32m [m
+    # meta field names[m
+    id = Column(Integer, primary_key=True, index=True)[m
+[1m[38;5;1m[1;31m    date_created = Column(DateTime[m[1;31;48;5;52m[m[1;31m)[m
+[0m[1m[38;5;1m[1;31m    #[m[1;31;48;5;52m[m[1;31mactual field names mapped from gophie_core[m
+[0m[1m[38;5;2m[1;32m    date_created = Column(DateTime[m[1;32;48;5;22m, default=datetime.datetime.utcnow[m[1;32m)[m
+[0m[1m[38;5;2m[1;32m    #[m[1;32;48;5;22m [m[1;32mactual field names mapped from gophie_core[m
+[0m    name = Column(String)[m
+    engine = Column(String)[m
+    description = Column(String)[m

@@ -1,5 +1,8 @@
 import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint, JSON
+from sqlalchemy import (Boolean, Column, ForeignKey,
+                        Integer, DateTime, String, 
+                        UniqueConstraint, JSON, DateTime,
+                       )
 from sqlalchemy.orm import relationship
 
 from app.models import Base
@@ -8,8 +11,11 @@ from app.models import Base
 class Movie(Base):
     __tablename__ = "movies"
     __table_args__ = (UniqueConstraint('name', 'engine'),)
-
+    
+    # meta field names
     id = Column(Integer, primary_key=True, index=True)
+    date_created = Column(DateTime)
+    #actual field names mapped from gophie_core
     name = Column(String)
     engine = Column(String)
     description = Column(String)
@@ -29,7 +35,7 @@ class Movie(Base):
     imdb_link = Column(String)
     tags = Column(String)
 
-
+    # relationships
     referrals = relationship("Referral", back_populates="owner")
     downloads = relationship("Download", back_populates="owner")
     ratings = relationship("Rating", back_populates="owner")
