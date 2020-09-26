@@ -4,6 +4,7 @@ import uuid
 import re
 import logging
 from functools import lru_cache
+from datetime import datetime, timedelta
 from app.settings import settings
 from app.models import HashableSession, HashableParams
 from app.models import models, crud
@@ -25,12 +26,15 @@ def keys_to_snake_case(d):
     return new_dict
 
 
-def dict_to_model(movie_dict: dict):
+def dict_to_model(params: HashableParams, movie_dict: dict):
     """ converts a movie_dict to model """
+    # obtain datetime to use for saved_on
+    saved_on = datetime.today() - timedelta(days=int(params["page"]))
     update = {
         "engine": movie_dict["source"],
         "name": movie_dict["title"],
         "referral_id": str(uuid.uuid4()),
+        "saved_on": saved_on,
     }
     del movie_dict["index"], movie_dict["source"], movie_dict["title"]
     movie_dict.update(update)
@@ -53,7 +57,7 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
         for m in response.json():
             movie = keys_to_snake_case(m)
             if movie.get("title", None) and movie.get("source", None):
-                movie_model = dict_to_model(movie)
+                movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
                 movies.append(cleaned_movie)
     return movies
