@@ -1,11 +1,12 @@
 import uuid
 import datetime
 from functools import lru_cache
+
 from sqlalchemy.orm import Session
-from sqlalchemy import exc
-from . import models, schemas
-from .database import HashableSession
-from utils import add_ratings, get_movie_download
+from sqlalchemy import exc, func
+
+from app.models import models, schemas, HashableSession
+from app.models.utils import add_ratings, get_movie_download
 
 
 def get_movie(db: Session, movie_id: int):
@@ -13,6 +14,30 @@ def get_movie(db: Session, movie_id: int):
     Get Movie by Id
     """
     return db.query(models.Movie).filter(models.Movie.id == movie_id).first()
+
+
+@lru_cache(maxsize=1000)
+def list_movies(db: HashableSession, engine: str, page: int, num: int):
+    """
+    Get List of Movies. With pagination and a total of `num` rows per query
+    """
+    return list(db.query(models.Movie)
+                .filter(func.lower(models.Movie.engine) == engine.lower())
+                .limit(num).offset(num * (page-1)))
+
+
+@lru_cache(maxsize=1000)
+def search_movies(db: HashableSession, engine: str, query: str, page: int, num: int):
+    """
+    Search movies using fuzzy partial
+    """
+    # TODO Improve fuzzy searching
+    return list(db.query(models.Movie)
+                .filter(models.Movie.name.ilike("%"+query+"%"), func.lower(models.Movie.engine) == engine.lower())
+                .limit(num)
+                .offset(num * (page-1))
+                )
+
 
 @lru_cache(maxsize=200)
 def get_movie_by_referral_id(db: HashableSession, referral_id: str):
@@ -49,6 +74,17 @@ def create_movie(db: Session, db_movie: models.Movie):
         movie.size = db_movie.size if db_movie.size else movie.size
         movie.year = db_movie.year if db_movie.year else movie.year
         movie.cover_photo_link = db_movie.cover_photo_link
+        movie.quality = db_movie.quality if db_movie.quality else movie.quality
+        movie.is_series = db_movie.is_series
+        movie.s_download_link = db_movie.s_download_link if db_movie.s_download_link else movie.s_download_link
+        movie.category = db_movie.category if db_movie.category else movie.category
+        movie.cast = db_movie.cast if db_movie.cast else movie.cast
+        movie.upload_date = db_movie.upload_date if db_movie.upload_date else movie.upload_date
+        movie.subtitle_link = db_movie.subtitle_link if db_movie.subtitle_link else movie.subtitle_link
+        movie.subtitle_links = db_movie.subtitle_links if db_movie.subtitle_links else movie.subtitle_links
+        movie.imdb_link = db_movie.imdb_link if db_movie.imdb_link else movie.imdb_link
+        movie.tags = db_movie.tags if db_movie.tags else movie.tags
+
         if movie.referral_id == None:
             movie.referral_id = str(uuid.uuid4())
         db.commit()
@@ -64,33 +100,22 @@ def create_movie_by_moviecreate(db: Session, movie: schemas.MovieCreate):
     return create_movie(db, db_movie)
 
 
-def get_movie_ratings(db: Session, movie: schemas.MovieCreate):
+def get_movie_ratings(db: Session, movie: schemas.MovieRating):
     """
     Get all rating objects of a movie
     """
-    movie = create_movie_by_moviecreate(db, movie)
-    return movie.ratings
+    movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
+    if movie:
+        return movie.ratings
+    else:
+        return []
 
 
-def get_movie_average_ratings(db: Session, movie: schemas.MovieCreate):
+def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):
     """
     Get the average ratings and number of raters of a particular movie
-    If movie does not exist, creates movie
     """
-    db_query = get_movie_by_schema(db, movie)
-    if db_query.count() < 1:
-        movie = models.Movie(
-            name=movie.name,
-            engine=movie.engine,
-            year=movie.year,
-            description=movie.description,
-            download_link=movie.download_link,
-            size=movie.size,
-            cover_photo_link=movie.cover_photo_link,
-        )
-        db_movie = create_movie(db, movie)
-    else:
-        db_movie = db_query.first()
+    db_movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
     total_sum = add_ratings(db_movie.ratings)
     if len(db_movie.ratings) > 0:
         average_ratings = total_sum/len(db_movie.ratings)
@@ -100,16 +125,7 @@ def get_movie_average_ratings(db: Session, movie: schemas.MovieCreate):
 
 
 def create_or_update_rating(db: Session, spec_rating: schemas.SpecificRatingScore):
-    movie = models.Movie(
-        name=spec_rating.movie_name,
-        engine=spec_rating.engine,
-        year=spec_rating.year,
-        description=spec_rating.description,
-        download_link=spec_rating.download_link,
-        size=spec_rating.size,
-        cover_photo_link=spec_rating.cover_photo_link,
-    )
-    movie = create_movie(db, movie)
+    movie = db.query(models.Movie).filter(models.Movie.referral_id==spec_rating.referral_id).first()
     db_rating_query = get_rating_by_schema(db, schemas.IndexedRating(
         ip_address=spec_rating.ip_address, movie_id=movie.id))
     if db_rating_query.count() < 1:
@@ -128,8 +144,7 @@ def get_rating(db: Session, spec_rating: schemas.SpecificRating):
     """
     Gets the specific rating of a particular movie by an ip_address
     """
-    db_query = get_movie_by_schema(db, schemas.MovieCreate(
-        name=spec_rating.movie_name, engine=spec_rating.engine))
+    db_query = db.query(models.Movie).filter(models.Movie.referral_id==spec_rating.referral_id)
     if db_query.count() >= 1:
         movie = db_query.first()
         rating = db.query(models.Rating).filter(models.Rating.ip_address ==
@@ -143,16 +158,7 @@ def create_download(db: Session, download: schemas.DownloadCreate):
     """
     Creates a particular download object
     """
-    movie = models.Movie(
-        name=download.movie_name,
-        engine=download.engine,
-        year=download.year,
-        description=download.description,
-        download_link=download.download_link,
-        size=download.size,
-        cover_photo_link=download.cover_photo_link,
-    )
-    movie = create_movie(db, movie)
+    movie = db.query(models.Movie).filter(models.Movie.referral_id==download.referral_id).first()
     db_download = models.Download(
         movie_id=movie.id, ip_address=download.ip_address, datetime=datetime.datetime.utcnow())
     db.add(db_download)
@@ -161,11 +167,11 @@ def create_download(db: Session, download: schemas.DownloadCreate):
     return db_download
 
 
-def get_number_of_downloads(db: Session, movie: schemas.MovieCreate):
+def get_number_of_downloads(db: Session, movie: schemas.MovieRating):
     """
     Get number of downloads
     """
-    db_query = get_movie_by_schema(db, movie)
+    db_query = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id)
     if db_query.count() < 1:
         return 0
     else:
@@ -198,6 +204,16 @@ def get_highest_downloads(db: HashableSession, filter_: schemas.DownloadFilter):
             download_link=get_movie(db, int(mov_key)).download_link,
             cover_photo_link=get_movie(db, int(mov_key)).cover_photo_link,
             referral_id=get_movie(db, int(mov_key)).referral_id,
+            quality=get_movie(db, int(mov_key)).quality,
+            is_series=get_movie(db, int(mov_key)).is_series,
+            s_download_link=get_movie(db, int(mov_key)).s_download_link,
+            category=get_movie(db, int(mov_key)).category,
+            cast=get_movie(db, int(mov_key)).cast,
+            upload_date=get_movie(db, int(mov_key)).upload_date,
+            subtitle_link=get_movie(db, int(mov_key)).subtitle_link,
+            subtitle_links=get_movie(db, int(mov_key)).subtitle_links,
+            imdb_link=get_movie(db, int(mov_key)).imdb_link,
+            tags=get_movie(db, int(mov_key)).tags,
         )
         for mov_key, downloads in movie_map.most_common(filter_.top)]
     return movie_downloads
@@ -207,16 +223,7 @@ def create_referral(db: Session, referral: schemas.ReferralCreate):
     """
     Creates a particular referral object (for data tracking purposes)
     """
-    movie = models.Movie(
-        name=referral.movie_name,
-        engine=referral.engine,
-        year=referral.year,
-        description=referral.description,
-        download_link=referral.download_link,
-        cover_photo_link=referral.cover_photo_link,
-        size=referral.size,
-    )
-    movie = create_movie(db, movie)
+    movie = db.query(models.Movie).filter(models.Movie.referral_id==referral.referral_id).first()
     db_referral = models.Referral(
         movie_id=movie.id, ip_address=referral.ip_address, datetime=datetime.datetime.utcnow())
     db.add(db_referral)
@@ -225,29 +232,10 @@ def create_referral(db: Session, referral: schemas.ReferralCreate):
     return db_referral
 
 
-def get_no_of_referrals(db: Session, movie: schemas.MovieCreate):
+def get_no_of_referrals(db: Session, movie: schemas.MovieRating):
     """
     Get number of referrals
     """
-    db_query = get_movie_by_schema(db, movie)
-    if db_query.count() < 1:
-        db_movie = create_movie_by_moviecreate(db, movie)
-    else:
-        db_movie = db_query.first()
+    db_movie = db.query(models.Movie).filter(models.Movie.referral_id==movie.referral_id).first()
     return len(db_movie.referrals)
 
-
-def get_referral_id(db: Session, movie: schemas.MovieCreate):
-    """
-    Get referral_id
-    """
-    db_query = get_movie_by_schema(db, movie)
-    if db_query.count() < 1:
-        return "No referral id, save movie first"
-    else:
-        db_movie = db_query.first()
-        if db_movie.referral_id == None:
-            db_movie.referral_id = str(uuid.uuid4())
-            db.commit()
-            db.refresh(db_movie)
-    return db_movie.referral_id

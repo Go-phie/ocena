@@ -1,8 +1,8 @@
 import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, String, UniqueConstraint, JSON
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from app.models import Base
 
 
 class Movie(Base):
@@ -18,6 +18,17 @@ class Movie(Base):
     download_link = Column(String)
     referral_id = Column(String)
     cover_photo_link = Column(String)
+    quality = Column(String)
+    is_series = Column(Boolean)
+    s_download_link = Column(JSON)
+    category = Column(String)
+    cast = Column(String)
+    upload_date = Column(String)
+    subtitle_link = Column(String)
+    subtitle_links = Column(JSON)
+    imdb_link = Column(String)
+    tags = Column(String)
+
 
     referrals = relationship("Referral", back_populates="owner")
     downloads = relationship("Download", back_populates="owner")
@@ -26,7 +37,7 @@ class Movie(Base):
 
 class Download(Base):
     __tablename__ = "downloads"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
@@ -34,15 +45,17 @@ class Download(Base):
 
     owner = relationship("Movie", back_populates="downloads")
 
+
 class Referral(Base):
     __tablename__ = "referrals"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
 
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship("Movie", back_populates="referrals")
+
 
 class Rating(Base):
     __tablename__ = "ratings"
@@ -54,4 +67,3 @@ class Rating(Base):
     score = Column(Integer)
 
     owner = relationship("Movie", back_populates="ratings")
-
