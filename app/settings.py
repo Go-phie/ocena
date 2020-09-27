@@ -19,6 +19,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "https://gophie.netlify.app",
         "https://gophie-ssr.herokuapp.com",
+        "https://gophie-statping.herokuapp.com",
         "https://gophie.cam",
         "https://ssr.gophie.cam",
     ]
