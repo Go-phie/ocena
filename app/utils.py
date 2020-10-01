@@ -1,3 +1,4 @@
+import time
 import os
 import requests
 import uuid
@@ -5,6 +6,9 @@ import re
 import logging
 from functools import lru_cache
 from datetime import datetime, timedelta
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 from app.settings import settings
 from app.models import HashableSession, HashableParams
 from app.models import models, crud
@@ -69,13 +73,19 @@ def dict_to_model(params: HashableParams, movie_dict: dict):
 def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: HashableSession):
     """ Gets movies from remote url """
     movies = []
+    adapter = HTTPAdapter(max_retries=1)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
     try:
         headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
-        response = requests.get(url, params, headers=headers)
+        start = time.time()
+        response = http.get(url, params=params, headers=headers, timeout=20)
         if response.status_code != 200:
-            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host}: ({response.status_code}): {response.content}")
+            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host} for <{engine}: ({response.status_code}): {response.content}")
         if response.json() in ([], None):
-            raise InvalidResponse(f"Empty Response from {settings.gophie_host}: {response.content}")
+            raise InvalidResponse(f"Empty Response from {settings.gophie_host} for {engine}: {response.content}")
+        print("time elapsed: ", time.time() - start)
     except Exception as e:
         logging.error(str(e))
         raise GophieHostException(f"Invalid Response from {settings.gophie_host}: {str(e)}")

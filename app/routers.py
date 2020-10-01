@@ -1,3 +1,4 @@
+import time
 from typing import List
 import contextlib
 import requests
@@ -141,7 +142,10 @@ def search_movies(engine: str = "netnaija", query: str = "hello", page: int = 1,
     })
     movies = []
     with contextlib.suppress(utils.GophieHostException):
+        start = time.time()
         movies = utils.get_movies_from_remote(f"{settings.gophie_host}/search", params, engine, db)
+        if movies:
+            print("Time elapsed Running Search: ", time.time() - start)
     if not movies:
         movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
         logging.info(utils.get_movies_from_remote.cache_info())
