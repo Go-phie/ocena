@@ -73,3 +73,18 @@ class Rating(Base):
     score = Column(Integer)
 
     owner = relationship("Movie", back_populates="ratings")
+
+class Music(Base):
+    __tablename__ = "music"
+    __table_args__ = (UniqueConstraint('source', 'download_link'),)
+    index = Column(Integer, primary_key=True, index=True)
+    date_created = Column(DateTime)
+    #actual field names mapped from mythra
+    artiste = Column(String)
+    title = Column(String)
+    collection = Column(String)
+    download_link = Column(String)
+    picture_link = Column(String)
+    size = Column(String)
+    duration = Column(String)
+    source = Column(String)

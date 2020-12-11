@@ -26,6 +26,15 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
                 .filter(func.lower(models.Movie.engine) == engine.lower())
                 .limit(num).offset(num * (page-1)))
 
+@lru_cache(maxsize=4096)
+def search_music(db: HashableSession, engine: str, query: str):
+    """
+    Search movies using fuzzy partial
+    """
+    # TODO Improve fuzzy searching
+    return list(db.query(models.Music)
+                .filter(models.Music.title.ilike("%"+query+"%"), func.lower(models.Music.source) == engine.lower())
+                )
 
 @lru_cache(maxsize=4096)
 def search_movies(db: HashableSession, engine: str, query: str, page: int, num: int):
@@ -55,6 +64,31 @@ def get_movie_by_schema(db: Session, movie: schemas.MovieCreate):
 def get_rating_by_schema(db: Session, rating: schemas.IndexedRating):
     return db.query(models.Rating).filter(models.Rating.ip_address == rating.ip_address, models.Rating.movie_id == rating.movie_id)
 
+def create_music(db: Session, db_music: models.Music):
+    """
+    Attempts to create music, If exist retrieves the movie
+    """
+    db.add(db_music)
+    try:
+        db.commit()
+        db.refresh(db_music)
+    except (exc.IntegrityError):
+        # Incase it breaks unique together constraint, then return
+        # The music but update it's fields
+        db.rollback()
+        music = db.query(models.Music).filter(models.Music.download_link == db_music.download_link, models.Music.source == db_music.source).first()
+
+        music.download_link = db_music.download_link if db_music.download_link else music.download_link
+        music.artiste = db_music.artiste if db_music.artiste else music.artiste
+        music.size = db_music.size if db_music.size else music.size
+        music.source = db_music.source if db_music.source else music.source
+        music.title = db_music.title if db_music.title else music.title
+        music.collection = db_music.collection if db_music.collection else music.collection
+        music.picture_link = db_music.picture_link if db_music.picture_link else music.picture_link
+        music.duration = db_music.duration if db_music.duration else music.duration
+        db.commit()
+        db_music = music
+    return db_music
 
 def create_movie(db: Session, db_movie: models.Movie):
     """

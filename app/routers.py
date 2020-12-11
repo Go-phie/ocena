@@ -12,7 +12,6 @@ from app.models import SessionLocal, schemas, crud, HashableSession, HashablePar
 
 router = APIRouter()
 
-
 @router.post("/movie/ratings/average/", response_model=schemas.AverageRating)
 def get_average_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     """
@@ -146,3 +145,23 @@ def search_movies(engine: str = "netnaija", query: str = "hello", page: int = 1,
         movies = crud.search_movies(db=db, engine=engine, query=query, page=page, num=num)
         logging.info(utils.get_movies_from_remote.cache_info())
     return movies
+
+@router.get("/music/search/", response_model=List[schemas.Music])
+def search_music(engine: str = "freemp3cloud", query: str = "Mirrors Justin Timberlake", db: HashableSession = Depends(get_db)):
+    """
+    Searches music from an engine using partial ratio
+
+    engine: the engine to list data from
+    query: the search term urlencoded
+    """
+    params = HashableParams({
+        "query": query,
+        "engine": engine,
+    })
+    music = []
+    with contextlib.suppress(utils.MythraHostException):
+        music = utils.get_music_from_remote(f"{settings.mythra_host}/search", params, engine, db)
+    if not music:
+        movies = crud.search_music(db=db, engine=engine, query=query) 
+        logging.info(utils.get_music_from_remote.cache_info())
+    return music
