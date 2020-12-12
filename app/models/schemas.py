@@ -3,6 +3,23 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+# Music schemas
+
+class Music(BaseModel):
+    index: int
+    #actual field names mapped from mythra
+    artiste: Optional[str]
+    title: str
+    collection: Optional[str]
+    download_link: str
+    picture_link: Optional[str]
+    size: Optional[str]
+    duration: Optional[str]
+    source: str
+
+    class Config:
+        orm_mode = True
+
 # Rating schemas
 
 class MovieORM(BaseModel):
