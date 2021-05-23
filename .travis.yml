@@ -14,6 +14,7 @@ install:
 
 script:
   - alembic upgrade head
+  # FIXME
   # - pytest
 
 deploy:
