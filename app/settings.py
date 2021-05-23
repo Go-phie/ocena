@@ -22,6 +22,7 @@ class Settings(BaseSettings):
         "https://gophie-statping.herokuapp.com",
         "https://gophie.cam",
         "https://ssr.gophie.cam",
+        "https://new.gophie.cam",
     ]
     origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"  # allow access from staging builds
 
