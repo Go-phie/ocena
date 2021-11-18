@@ -1,21 +1,38 @@
+from fastapi_users import models
 import datetime
 from sqlalchemy import (Boolean, Column, ForeignKey,
-                        Integer, DateTime, String, 
+                        Integer, DateTime, String,
                         UniqueConstraint, JSON, DateTime,
-                       )
+                        )
 from sqlalchemy.orm import relationship
 
 from app.models import Base
 
 
+class User(models.BaseUser):
+    pass
+
+
+class UserCreate(models.BaseUserCreate):
+    pass
+
+
+class UserUpdate(models.BaseUserUpdate):
+    pass
+
+
+class UserDB(User, models.BaseUserDB):
+    pass
+
+
 class Movie(Base):
     __tablename__ = "movies"
     __table_args__ = (UniqueConstraint('name', 'engine'),)
-    
+
     # meta field names
     id = Column(Integer, primary_key=True, index=True)
     date_created = Column(DateTime)
-    #actual field names mapped from gophie_core
+    # actual field names mapped from gophie_core
     name = Column(String)
     engine = Column(String)
     description = Column(String)
@@ -74,12 +91,13 @@ class Rating(Base):
 
     owner = relationship("Movie", back_populates="ratings")
 
+
 class Music(Base):
     __tablename__ = "music"
     __table_args__ = (UniqueConstraint('source', 'download_link'),)
     index = Column(Integer, primary_key=True, index=True)
     date_created = Column(DateTime)
-    #actual field names mapped from mythra
+    # actual field names mapped from mythra
     artiste = Column(String)
     title = Column(String)
     collection = Column(String)

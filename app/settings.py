@@ -1,11 +1,9 @@
 import os
-from typing import List
-
-from fastapi import FastAPI
 from pydantic import BaseSettings
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SECRET = "SECRET"
 
 
 class Settings(BaseSettings):
@@ -24,7 +22,8 @@ class Settings(BaseSettings):
         "https://gophie.cam",
         "https://ssr.gophie.cam",
     ]
-    origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"  # allow access from staging builds
+    # allow access from staging builds
+    origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"
 
 
 settings = Settings()

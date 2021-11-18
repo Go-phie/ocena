@@ -30,7 +30,8 @@ def column_windows(session, column, windowsize):
         else:
             return column >= start_id
 
-    q = session.query(column, func.row_number().over(order_by=column).label('rownum'))
+    q = session.query(column, func.row_number().over(
+        order_by=column).label('rownum'))
     if windowsize > 1:
         q = q.filter(sqlalchemy.text("movies.id %% %d=1" % windowsize))
 
