@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.settings import settings
 from app import utils
-from app.models import SessionLocal, schemas, crud, HashableSession, HashableParams, get_db
+from app.models import schemas, crud, HashableSession, HashableParams, get_db
 
 router = APIRouter()
 
@@ -21,9 +21,9 @@ def get_average_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db
 
 
 @router.post("/movie/rating/", response_model=schemas.Rating, tags=["movie"])
-def get_ip_rating(spec_rating: schemas.SpecificRating, db: Session = Depends(get_db)):
+def get_user_rating(spec_rating: schemas.SpecificRating, db: Session = Depends(get_db)):
     """
-    Get Rating of a movie by an ip_address
+    Get Rating of a movie by an user_id
     """
     return crud.get_rating(db=db, spec_rating=spec_rating)
 

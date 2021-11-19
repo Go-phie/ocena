@@ -43,7 +43,7 @@ class MovieORM(BaseModel):
 
 
 class RatingBase(BaseModel):
-    ip_address: str
+    user: str
 
 
 class SpecificRating(RatingBase):
@@ -81,7 +81,7 @@ class RatingCreate(RatingBase):
 # Download Schemas
 
 class DownloadBase(BaseModel):
-    ip_address: str
+    user: str
 
 
 class DownloadCreate(DownloadBase):
@@ -117,7 +117,7 @@ class Download(DownloadBase):
 
 
 class ReferralBase(BaseModel):
-    ip_address: str
+    user: str
 
 
 class ReferralCreate(ReferralBase):

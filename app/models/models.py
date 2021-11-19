@@ -10,7 +10,9 @@ from app.settings import Base
 
 
 class User(models.BaseUser, models.BaseOAuthAccountMixin):
-    pass
+    referrals = relationship("Referral", back_populates="owner")
+    downloads = relationship("Download", back_populates="owner")
+    ratings = relationship("Rating", back_populates="owner")
 
 
 class UserCreate(models.BaseUserCreate):
@@ -65,8 +67,10 @@ class Download(Base):
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
+    user_id = Column(Integer, ForeignKey("user.id"))
 
     owner = relationship("Movie", back_populates="downloads")
+    user = relationship("User", back_populates="downloads")
 
 
 class Referral(Base):
@@ -75,9 +79,11 @@ class Referral(Base):
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
+    user_id = Column(Integer, ForeignKey("user.id"))
 
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship("Movie", back_populates="referrals")
+    user = relationship("User", back_populates="referrals")
 
 
 class Rating(Base):
@@ -88,8 +94,10 @@ class Rating(Base):
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     score = Column(Integer)
+    user_id = Column(Integer, ForeignKey("user.id"))
 
     owner = relationship("Movie", back_populates="ratings")
+    user = relationship("User", back_populates="ratings")
 
 
 class Music(Base):
