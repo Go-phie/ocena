@@ -6,10 +6,10 @@ from sqlalchemy import (Boolean, Column, ForeignKey,
                         )
 from sqlalchemy.orm import relationship
 
-from app.models import Base
+from app.settings import Base
 
 
-class User(models.BaseUser):
+class User(models.BaseUser, models.BaseOAuthAccountMixin):
     pass
 
 
