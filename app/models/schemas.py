@@ -5,9 +5,10 @@ from pydantic import BaseModel
 
 # Music schemas
 
+
 class Music(BaseModel):
     index: int
-    #actual field names mapped from mythra
+    # actual field names mapped from mythra
     artiste: Optional[str]
     title: str
     collection: Optional[str]
@@ -22,6 +23,7 @@ class Music(BaseModel):
 
 # Rating schemas
 
+
 class MovieORM(BaseModel):
     description: Optional[str]
     size: Optional[str]
@@ -30,7 +32,7 @@ class MovieORM(BaseModel):
     cover_photo_link: Optional[str]
     quality: Optional[str]
     is_series: Optional[bool]
-    s_download_link : Optional[dict]
+    s_download_link: Optional[dict]
     category: Optional[str]
     cast: Optional[str]
     upload_date: Optional[str]
@@ -39,8 +41,10 @@ class MovieORM(BaseModel):
     imdb_link: Optional[str]
     tags: Optional[str]
 
+
 class RatingBase(BaseModel):
     ip_address: str
+
 
 class SpecificRating(RatingBase):
     referral_id: str
@@ -52,6 +56,7 @@ class IndexedRating(RatingBase):
 
 class SpecificRatingScore(SpecificRating):
     score: str
+
 
 class Rating(RatingBase):
     id: int
@@ -81,6 +86,7 @@ class DownloadBase(BaseModel):
 
 class DownloadCreate(DownloadBase):
     referral_id: str
+
 
 class DownloadFilter(BaseModel):
     filter_by: str
@@ -117,6 +123,7 @@ class ReferralBase(BaseModel):
 class ReferralCreate(ReferralBase):
     referral_id: str
 
+
 class Referral(ReferralBase):
     id: int
     movie_id: int
@@ -132,11 +139,14 @@ class MovieBase(BaseModel):
     name: str
     engine: str
 
+
 class MovieRating(BaseModel):
     referral_id: str
 
+
 class MovieCreate(MovieBase, MovieORM):
     pass
+
 
 class MovieComplete(MovieCreate):
     id: int
