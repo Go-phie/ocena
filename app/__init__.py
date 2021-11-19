@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 # Settings module must be imported before all modules so that it will be available
 from app.settings import settings
 from app.models import SessionLocal
 from .routers import users, movie, music
-from .dependencies import jwt_authentication
+from .dependencies import jwt_authentication, google_oauth_client
 
-app = FastAPI(title="Ocena")
-
+app = FastAPI(title=settings.app_name)
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +37,11 @@ app.include_router(
 app.include_router(
     users.fastapi_users.get_reset_password_router(),
     prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    users.fastapi_users.get_oauth_router(google_oauth_client, settings.secret),
+    prefix="/auth/google",
     tags=["auth"],
 )
 app.include_router(movie.router)

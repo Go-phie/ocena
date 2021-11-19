@@ -1,9 +1,10 @@
 import os
 from pydantic import BaseSettings
-
+from sqlalchemy.ext.declarative import declarative_base
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET = "SECRET"
+
+Base = declarative_base()
 
 
 class Settings(BaseSettings):
@@ -24,6 +25,11 @@ class Settings(BaseSettings):
     ]
     # allow access from staging builds
     origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"
+    # social auth credentials
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    # app secret
+    secret: str = ""
 
 
 settings = Settings()
