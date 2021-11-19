@@ -20,14 +20,14 @@ app.add_middleware(
 )
 
 app.include_router(
-    users.fastapi_users.get_users_router(),
-    prefix="/auth",
-    tags=["users"],
-)
-app.include_router(
     users.fastapi_users.get_register_router(),
     prefix="/auth",
     tags=["auth"],
+)
+app.include_router(
+    users.fastapi_users.get_users_router(),
+    prefix="/auth",
+    tags=["users"],
 )
 app.include_router(
     users.fastapi_users.get_auth_router(jwt_authentication),

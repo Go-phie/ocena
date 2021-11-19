@@ -3,7 +3,6 @@ from fastapi_users.authentication import JWTAuthentication
 from fastapi_users import FastAPIUsers
 from app.dependencies import get_user_manager, jwt_authentication
 from app.models.models import User, UserCreate, UserUpdate, UserDB
-from app.settings import SECRET
 
 
 fastapi_users = FastAPIUsers(
