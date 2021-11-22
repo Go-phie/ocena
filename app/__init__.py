@@ -7,8 +7,10 @@ from app.settings import settings
 from app.models import SessionLocal
 from .routers import users, movie, music
 from .dependencies import jwt_authentication, google_oauth_client
+# from pydantic import BaseConfig
 
 app = FastAPI(title=settings.app_name)
+# BaseConfig.arbitrary_types_allowed = True
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,4 +66,4 @@ def get_db():
 
 @app.get("/")
 async def root():
-    return {"message": "Ocena, 'Rating'!"}
+    return {"message": f"{settings.app_name}, 'Rating'!"}

@@ -43,7 +43,7 @@ class MovieORM(BaseModel):
 
 
 class RatingBase(BaseModel):
-    user: str
+    user_id: str
 
 
 class SpecificRating(RatingBase):
@@ -81,7 +81,7 @@ class RatingCreate(RatingBase):
 # Download Schemas
 
 class DownloadBase(BaseModel):
-    user: str
+    user_id: str
 
 
 class DownloadCreate(DownloadBase):
@@ -117,7 +117,7 @@ class Download(DownloadBase):
 
 
 class ReferralBase(BaseModel):
-    user: str
+    user_id: str
 
 
 class ReferralCreate(ReferralBase):

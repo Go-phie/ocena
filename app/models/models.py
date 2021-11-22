@@ -1,5 +1,7 @@
 from fastapi_users import models
 import datetime
+
+from fastapi_utils.guid_type import GUID
 from sqlalchemy import (Boolean, Column, ForeignKey,
                         Integer, DateTime, String,
                         UniqueConstraint, JSON, DateTime,
@@ -10,9 +12,12 @@ from app.settings import Base
 
 
 class User(models.BaseUser, models.BaseOAuthAccountMixin):
-    referrals = relationship("Referral", back_populates="owner")
-    downloads = relationship("Download", back_populates="owner")
-    ratings = relationship("Rating", back_populates="owner")
+    referrals = relationship("Referral",  back_populates="users")
+    downloads = relationship("Download", back_populates="users")
+    ratings = relationship("Rating", back_populates="users")
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class UserCreate(models.BaseUserCreate):
@@ -62,12 +67,13 @@ class Movie(Base):
 
 class Download(Base):
     __tablename__ = "downloads"
+    __table_args__ = (UniqueConstraint('user_id'), )
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(GUID, ForeignKey("user.id"))
 
     owner = relationship("Movie", back_populates="downloads")
     user = relationship("User", back_populates="downloads")
@@ -75,11 +81,12 @@ class Download(Base):
 
 class Referral(Base):
     __tablename__ = "referrals"
+    __table_args__ = (UniqueConstraint('user_id'), )
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(ForeignKey("user.id"))
 
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship("Movie", back_populates="referrals")
@@ -88,13 +95,13 @@ class Referral(Base):
 
 class Rating(Base):
     __tablename__ = "ratings"
-    __table_args__ = (UniqueConstraint('movie_id', 'ip_address'), )
+    __table_args__ = (UniqueConstraint('movie_id', 'ip_address', 'user_id'), )
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     score = Column(Integer)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(ForeignKey("user.id"))
 
     owner = relationship("Movie", back_populates="ratings")
     user = relationship("User", back_populates="ratings")
