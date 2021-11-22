@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from app.settings import settings
 from app.models import HashableSession, HashableParams
 from app.models import models, crud
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 
 # Pattern for converting camel to snake case, used in parsing json response
@@ -19,9 +18,11 @@ class GophieHostException(Exception):
     """ Generic Gophie Host Exception """
     pass
 
+
 class MythraHostException(Exception):
     """ Generic Mythra Host Exception """
     pass
+
 
 class InvalidResponse(Exception):
     """ If response is not a valid object"""
@@ -32,9 +33,11 @@ class GophieUnresponsive(Exception):
     """ If gophie does not return 200 """
     pass
 
+
 class MythraUnresponsive(Exception):
     """ If mythra does not return 200 """
     pass
+
 
 def camel_case_to_snake_case(s):
     return camel_to_snake_pattern.sub('_', s).lower()
@@ -48,7 +51,7 @@ def keys_to_snake_case(d):
     return new_dict
 
 
-def dict_to_model(params: HashableParams, movie_dict: dict, model: DeclarativeMeta):
+def dict_to_model(params: HashableParams, movie_dict: dict, model):
     """ converts a movie_dict to model """
     if model.__tablename__ == "movies":
         update = {
@@ -61,7 +64,8 @@ def dict_to_model(params: HashableParams, movie_dict: dict, model: DeclarativeMe
         # older movies get pushed further when ordered by desc days
         # and more recent movies cluster at the top
         if params.get("num", None):
-            date_created = datetime.today() - timedelta(days=int(params["page"]))
+            date_created = datetime.today(
+            ) - timedelta(days=int(params["page"]))
             update["date_created"] = date_created
         else:
             # searched movies will retain their original date_created
@@ -85,12 +89,15 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
         headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
         response = requests.get(url, params, headers=headers)
         if response.status_code != 200:
-            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host}: ({response.status_code}): {response.content}")
+            raise GophieUnresponsive(
+                f"Invalid Response from {settings.gophie_host}: ({response.status_code}): {response.content}")
         if response.json() in ([], None):
-            raise InvalidResponse(f"Empty Response from {settings.gophie_host}: {response.content}")
+            raise InvalidResponse(
+                f"Empty Response from {settings.gophie_host}: {response.content}")
     except Exception as e:
         logging.error(str(e))
-        raise GophieHostException(f"Invalid Response from {settings.gophie_host}: {str(e)}")
+        raise GophieHostException(
+            f"Invalid Response from {settings.gophie_host}: {str(e)}")
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
@@ -100,6 +107,7 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
                 movies.append(cleaned_movie)
     return movies
 
+
 @lru_cache(maxsize=4096)
 def get_music_from_remote(url: str, params: HashableParams, engine: str, db: HashableSession):
     """ Gets movies from remote url """
@@ -107,12 +115,15 @@ def get_music_from_remote(url: str, params: HashableParams, engine: str, db: Has
     try:
         response = requests.get(url, params)
         if response.status_code != 200:
-            raise MythraUnresponsive(f"Invalid Response from {settings.mythra_host}: ({response.status_code}): {response.content}")
+            raise MythraUnresponsive(
+                f"Invalid Response from {settings.mythra_host}: ({response.status_code}): {response.content}")
         if response.json() in ([], None):
-            raise InvalidResponse(f"Empty Response from {settings.mythra_host}: {response.content}")
+            raise InvalidResponse(
+                f"Empty Response from {settings.mythra_host}: {response.content}")
     except Exception as e:
         logging.error(str(e))
-        raise MythraHostException(f"Invalid Response from {settings.gophie_host}: {str(e)}")
+        raise MythraHostException(
+            f"Invalid Response from {settings.gophie_host}: {str(e)}")
     else:
         for music in response.json():
             if music.get("title", None) and music.get("source", None):

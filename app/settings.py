@@ -1,11 +1,10 @@
 import os
-from typing import List
-
-from fastapi import FastAPI
 from pydantic import BaseSettings
-
+from sqlalchemy.ext.declarative import declarative_base
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+Base = declarative_base()
 
 
 class Settings(BaseSettings):
@@ -24,7 +23,13 @@ class Settings(BaseSettings):
         "https://gophie.cam",
         "https://ssr.gophie.cam",
     ]
-    origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"  # allow access from staging builds
+    # allow access from staging builds
+    origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"
+    # social auth credentials
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    # app secret
+    secret: str = ""
 
 
 settings = Settings()
