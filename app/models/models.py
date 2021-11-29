@@ -12,12 +12,12 @@ from app.settings import Base
 
 
 class User(models.BaseUser, models.BaseOAuthAccountMixin):
-    referrals = relationship("Referral",  back_populates="users")
-    downloads = relationship("Download", back_populates="users")
-    ratings = relationship("Rating", back_populates="users")
-
-    class Config:
-        arbitrary_types_allowed = True
+    # referrals = relationship("Referral",  back_populates="users")
+    # downloads = relationship("Download", back_populates="users")
+    # ratings = relationship("Rating", back_populates="users")
+    # class Config:
+    #     arbitrary_types_allowed = True
+    pass
 
 
 class UserCreate(models.BaseUserCreate):
