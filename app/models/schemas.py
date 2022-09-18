@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import List, Optional
-
+from fastapi_users import schemas
 from pydantic import BaseModel
+
+import uuid
 
 # Music schemas
 
@@ -43,7 +45,7 @@ class MovieORM(BaseModel):
 
 
 class RatingBase(BaseModel):
-    user_id: int
+    user_id: Optional[uuid.UUID]
 
 
 class SpecificRating(RatingBase):
@@ -81,7 +83,7 @@ class RatingCreate(RatingBase):
 # Download Schemas
 
 class DownloadBase(BaseModel):
-    user_id: int
+    user_id: Optional[uuid.UUID]
 
 
 class DownloadCreate(DownloadBase):
@@ -117,7 +119,7 @@ class Download(DownloadBase):
 
 
 class ReferralBase(BaseModel):
-    user_id: int
+    user_id: Optional[uuid.UUID]
 
 
 class ReferralCreate(ReferralBase):
@@ -170,3 +172,15 @@ class Movie(MovieReferral):
 
     class Config:
         orm_mode = True
+
+
+class UserRead(schemas.BaseUser[uuid.UUID]):
+    pass
+
+
+class UserCreate(schemas.BaseUserCreate):
+    pass
+
+
+class UserUpdate(schemas.BaseUserUpdate):
+    pass

@@ -1,35 +1,29 @@
-from fastapi_users import models
 import datetime
+from typing import List
 
-from fastapi_utils.guid_type import GUID
 from sqlalchemy import (Boolean, Column, ForeignKey,
                         Integer, DateTime, String,
                         UniqueConstraint, JSON, DateTime,
                         )
 from sqlalchemy.orm import relationship
+from fastapi_users.db import (
+    SQLAlchemyBaseOAuthAccountTableUUID,
+    SQLAlchemyBaseUserTableUUID,
+)
 
 from app.settings import Base
 
 
-class User(models.BaseUser, models.BaseOAuthAccountMixin):
-    # referrals = relationship("Referral",  back_populates="users")
-    # downloads = relationship("Download", back_populates="users")
-    # ratings = relationship("Rating", back_populates="users")
-    # class Config:
-    #     arbitrary_types_allowed = True
+class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
     pass
 
 
-class UserCreate(models.BaseUserCreate):
-    pass
-
-
-class UserUpdate(models.BaseUserUpdate):
-    pass
-
-
-class UserDB(User, models.BaseUserDB):
-    pass
+class User(SQLAlchemyBaseUserTableUUID, Base):
+    oauth_accounts: List[OAuthAccount] = relationship(
+        "OAuthAccount", lazy="joined")
+    referrals = relationship("Referral",  back_populates="user")
+    downloads = relationship("Download", back_populates="user")
+    ratings = relationship("Rating", back_populates="user")
 
 
 class Movie(Base):
@@ -67,13 +61,12 @@ class Movie(Base):
 
 class Download(Base):
     __tablename__ = "downloads"
-    __table_args__ = (UniqueConstraint('user_id'), )
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
-    user_id = Column(GUID, ForeignKey("user.id"))
+    user_id = Column(ForeignKey("user.id"), nullable=True)
 
     owner = relationship("Movie", back_populates="downloads")
     user = relationship("User", back_populates="downloads")
@@ -81,12 +74,11 @@ class Download(Base):
 
 class Referral(Base):
     __tablename__ = "referrals"
-    __table_args__ = (UniqueConstraint('user_id'), )
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
-    user_id = Column(ForeignKey("user.id"))
+    user_id = Column(ForeignKey("user.id"), nullable=True)
 
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship("Movie", back_populates="referrals")
@@ -101,7 +93,7 @@ class Rating(Base):
     movie_id = Column(Integer, ForeignKey("movies.id"))
     ip_address = Column(String)
     score = Column(Integer)
-    user_id = Column(ForeignKey("user.id"))
+    user_id = Column(ForeignKey("user.id"), nullable=True)
 
     owner = relationship("Movie", back_populates="ratings")
     user = relationship("User", back_populates="ratings")

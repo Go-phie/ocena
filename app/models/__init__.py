@@ -1,35 +1,21 @@
 from datetime import datetime
-import databases
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from sqlalchemy.orm import sessionmaker
+
 from fastapi_users.db import (
-    SQLAlchemyBaseOAuthAccountTable,
-    SQLAlchemyBaseUserTable,
     SQLAlchemyUserDatabase,
 )
-from app import settings
+from fastapi import Depends
+from app.settings import settings
 
-from app.models.models import UserDB
+from app.models.models import OAuthAccount, User
 
-Base = declarative_base()
+Base: DeclarativeMeta = declarative_base()
 
-if settings.debug:
-    engine = create_engine(settings.database_url, connect_args={
-                           "check_same_thread": False})
-else:
-    engine = create_engine(settings.database_url)
-
-database = databases.Database(settings.database_url)
-
-
-class UserTable(Base, SQLAlchemyBaseUserTable):
-    pass
-
-
-class OAuthAccount(SQLAlchemyBaseOAuthAccountTable, Base):
-    pass
+engine = create_engine(settings.database_url)
 
 
 class HashableSession(Session):
@@ -63,7 +49,7 @@ SessionLocal = sessionmaker(
     autocommit=False, class_=HashableSession, autoflush=False, bind=engine)
 
 
-def get_db():
+async def get_db():
     """ Get Database Object"""
     try:
         db = SessionLocal()
@@ -72,12 +58,5 @@ def get_db():
         db.close()
 
 
-Base.metadata.create_all(engine)
-
-users = UserTable.__table__
-
-oauth_accounts = OAuthAccount.__table__
-
-
-async def get_user_db():
-    yield SQLAlchemyUserDatabase(UserDB, database, users, oauth_accounts)
+async def get_user_db(session=Depends(get_db)):
+    yield SQLAlchemyUserDatabase(session, User, OAuthAccount)

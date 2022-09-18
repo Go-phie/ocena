@@ -1,15 +1,10 @@
-from typing import Optional
-from fastapi_users.authentication import JWTAuthentication
 from fastapi_users import FastAPIUsers
-from app.dependencies import get_user_manager, jwt_authentication
-from app.models.models import User, UserCreate, UserUpdate, UserDB
+import uuid
 
+from app.dependencies import get_user_manager, auth_backend
+from app.models.models import User
 
-fastapi_users = FastAPIUsers(
+fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,
-    [jwt_authentication],
-    User,
-    UserCreate,
-    UserUpdate,
-    UserDB,
+    [auth_backend],
 )

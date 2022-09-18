@@ -12,8 +12,9 @@ class Settings(BaseSettings):
     gophie_host: str = "https://deploy-gophie.herokuapp.com"
     mythra_host: str = "https://gophie-mythra.herokuapp.com"
     gophie_access_key: str = ""
-    database_url: str = f"sqlite:///{BASE_DIR}/db.sqlite3"
-    debug: bool = True
+    # database_url: str = f"sqlite:///{BASE_DIR}/db.sqlite3"
+    database_url: str = "postgresql://silva:silvastar1078@127.0.0.1:5432/ocena"
+    debug: bool = False
     origins: list = [
         "http://gophie-ocena.herokuapp.com",
         "http://localhost:3000",
@@ -26,8 +27,8 @@ class Settings(BaseSettings):
     # allow access from staging builds
     origins_regex = "https://deploy-preview-\d+--gophie\.netlify\.app"
     # social auth credentials
-    google_client_id: str = ""
-    google_client_secret: str = ""
+    google_client_id: str = "553026630658-9vv2i5bl8nhfddmr6fkv6992sr0r5fgs.apps.googleusercontent.com"
+    google_client_secret: str = "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"
     # app secret
     secret: str = ""
 
