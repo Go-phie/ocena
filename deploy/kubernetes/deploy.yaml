@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocena
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ocena
+  template:
+    metadata:
+      labels:
+        app: ocena
+    spec:
+      containers:
+      - name: ocena
+        image: gcr.io/khidom/ocena
+        envFrom:
+        - configMapRef:
+            name: ocena
+#        resources:
+#          limits:
+#            memory: "128Mi"
+#            cpu: "500m"
+        ports:
+        - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocena
+spec:
+  type: ClusterIP
+  selector:
+    app: ocena
+  ports:
+  - port: 80
+    targetPort: 8000
+
