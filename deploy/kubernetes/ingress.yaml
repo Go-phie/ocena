@@ -8,6 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-secret: basic-ocena-auth
     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - ocena'
     nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://*.gophie.cam, https://gophie.cam"
     # Cache Configurations
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/configuration-snippet: |-
