@@ -95,5 +95,6 @@ def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: Ha
             if movie.get("title", None) and movie.get("source", None):
                 movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
+#                 cleaned_movie["ratings"] = crud.get_movie_average_ratings(db=db, movie=cleaned_movie)
                 movies.append(cleaned_movie)
     return movies

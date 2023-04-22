@@ -21,10 +21,16 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
     """
     Get List of Movies. With pagination and a total of `num` rows per query
     """
-    return list(db.query(models.Movie)
+    print (list(db.query(
+                    models.Movie, 
+                    func.avg(models.Rating.score)
+                )
+                .join(models.Rating)
                 .order_by(models.Movie.date_created.desc())
+                .group_by(models.Movie.id)
                 .filter(func.lower(models.Movie.engine) == engine.lower())
-                .limit(num).offset(num * (page-1)))
+                .limit(num).offset(num * (page-1))))
+    return  []
 
 
 @lru_cache(maxsize=4096)
