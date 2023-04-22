@@ -12,9 +12,11 @@ metadata:
     # Cache Configurations
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/configuration-snippet: |-
+      rewrite ^([^.]*[^/])$ $1/ permanent; # append trailing slash if missing. Ocena services run with a trailing slash
       proxy_cache app_cache;
       proxy_cache_valid any 60m;
       proxy_cache_valid 500 501 502 503 504 0m;
+      proxy_cache_methods GET HEAD;
       proxy_cache_use_stale error timeout updating http_502 http_503 http_504;
       proxy_cache_lock on;
       proxy_ignore_headers Cache-Control;
@@ -29,7 +31,7 @@ spec:
   - host: ocena.gophie.cam
     http:
       paths:
-      - pathType: ImplementationSpecific
+      - pathType: Prefix
         path: /
         backend:
           service:

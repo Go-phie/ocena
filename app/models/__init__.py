@@ -10,7 +10,8 @@ from app import settings
 Base = declarative_base()
 
 if settings.debug:
-    engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+#     engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+    engine = create_engine(settings.database_url)
 else:
     engine = create_engine(settings.database_url)
 
