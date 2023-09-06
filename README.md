@@ -15,11 +15,19 @@ Ocena basically means "Rating" in Polish. It is the service responsible for hand
 alembic revision --autogenerate -m "Commit message"
 ```
 ## Development
+- Manual
+  ```bash
+    pip install -r requirements.txt
 
-```bash
-  pip install -r requirements.txt
+    uvicorn main:app --debug
+  ```
+- Running using Docker
+  - Create a .env file using env.example as sample
 
-  uvicorn main:app --debug
-```
+  - ```
+    docker-compose up
+    ```
+  - Exec into the `ocena` container run alembic to create database tables
+  `alembic upgrade head`
 
 Visit http://localhost:8000/docs to interact with API
