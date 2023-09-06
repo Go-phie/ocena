@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 # Rating schemas
 
@@ -152,5 +152,20 @@ class Movie(MovieReferral):
     referrals: List[Referral] = []
     downloads: List[Download] = []
 
+    average_ratings: Optional[AverageRating] = None
+
     class Config:
         orm_mode = True
+
+    @root_validator()
+    def get_average_ratings(cls, values):
+        ratings = values.get("ratings")
+        if not ratings:
+            values["average_ratings"] = AverageRating(average_ratings=0, by=0)
+            return values
+        average = sum(rating.score for rating in ratings) / len(ratings)
+
+        values["average_ratings"] = AverageRating(
+            average_ratings=average, by=len(ratings)
+        )
+        return values

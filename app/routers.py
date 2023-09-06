@@ -118,7 +118,7 @@ def get_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db)):
     return crud.get_movie_ratings(db=db, movie=movie)
 
 
-@router.get("/list/", response_model=List[schemas.MovieReferral])
+@router.get("/list/", response_model=List[schemas.Movie])
 def list_movies(
     engine: str = "netnaija",
     page: int = 1,
@@ -144,7 +144,7 @@ def list_movies(
     return movies
 
 
-@router.get("/search/", response_model=List[schemas.MovieReferral])
+@router.get("/search/", response_model=List[schemas.Movie])
 def search_movies(
     engine: str = "netnaija",
     query: str = "hello",
