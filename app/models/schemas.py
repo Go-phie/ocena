@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 # Rating schemas
 
+
 class MovieORM(BaseModel):
     description: Optional[str]
     size: Optional[str]
@@ -13,7 +14,7 @@ class MovieORM(BaseModel):
     cover_photo_link: Optional[str]
     quality: Optional[str]
     is_series: Optional[bool]
-    s_download_link : Optional[dict]
+    s_download_link: Optional[dict]
     category: Optional[str]
     cast: Optional[str]
     upload_date: Optional[str]
@@ -22,8 +23,10 @@ class MovieORM(BaseModel):
     imdb_link: Optional[str]
     tags: Optional[str]
 
+
 class RatingBase(BaseModel):
     ip_address: str
+
 
 class SpecificRating(RatingBase):
     referral_id: str
@@ -35,6 +38,7 @@ class IndexedRating(RatingBase):
 
 class SpecificRatingScore(SpecificRating):
     score: str
+
 
 class Rating(RatingBase):
     id: int
@@ -58,12 +62,14 @@ class RatingCreate(RatingBase):
 
 # Download Schemas
 
+
 class DownloadBase(BaseModel):
     ip_address: str
 
 
 class DownloadCreate(DownloadBase):
     referral_id: str
+
 
 class DownloadFilter(BaseModel):
     filter_by: str
@@ -90,6 +96,7 @@ class Download(DownloadBase):
     class Config:
         orm_mode = True
 
+
 # Referral Schemas
 
 
@@ -99,6 +106,7 @@ class ReferralBase(BaseModel):
 
 class ReferralCreate(ReferralBase):
     referral_id: str
+
 
 class Referral(ReferralBase):
     id: int
@@ -111,15 +119,19 @@ class Referral(ReferralBase):
 
 # Movie Schemas
 
+
 class MovieBase(BaseModel):
     name: str
     engine: str
 
+
 class MovieRating(BaseModel):
     referral_id: str
 
+
 class MovieCreate(MovieBase, MovieORM):
     pass
+
 
 class MovieComplete(MovieCreate):
     id: int
@@ -127,7 +139,6 @@ class MovieComplete(MovieCreate):
 
 
 class MovieReferral(MovieComplete):
-
     class Config:
         orm_mode = True
 

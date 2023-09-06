@@ -7,6 +7,7 @@ from pydantic import BaseSettings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 class Settings(BaseSettings):
     app_name: str = "Ocena"
     gophie_host: str = "https://gophie.cam"

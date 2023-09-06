@@ -10,7 +10,7 @@ from app import settings
 Base = declarative_base()
 
 if settings.debug:
-#     engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+    #     engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
     engine = create_engine(settings.database_url)
 else:
     engine = create_engine(settings.database_url)
@@ -43,11 +43,13 @@ class HashableParams(dict):
         return self.__hash__() == other.__hash__()
 
 
-SessionLocal = sessionmaker(autocommit=False, class_=HashableSession, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False, class_=HashableSession, autoflush=False, bind=engine
+)
 
 
 def get_db():
-    """ Get Database Object"""
+    """Get Database Object"""
     try:
         db = SessionLocal()
         yield db

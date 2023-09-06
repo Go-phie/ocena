@@ -15,30 +15,33 @@ from app.models import models, crud
 
 
 # Pattern for converting camel to snake case, used in parsing json response
-camel_to_snake_pattern = re.compile(r'(?<!^)(?=[A-Z])')
+camel_to_snake_pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
 class GophieHostException(Exception):
-    """ Generic Gophie Host Exception """
+    """Generic Gophie Host Exception"""
+
     pass
 
 
 class InvalidResponse(Exception):
-    """ If response is not a valid object"""
+    """If response is not a valid object"""
+
     pass
 
 
 class GophieUnresponsive(Exception):
-    """ If gophie does not return 200 """
+    """If gophie does not return 200"""
+
     pass
 
 
 def camel_case_to_snake_case(s):
-    return camel_to_snake_pattern.sub('_', s).lower()
+    return camel_to_snake_pattern.sub("_", s).lower()
 
 
 def keys_to_snake_case(d):
-    """ returns a dictionary with keys converted to snake case """
+    """returns a dictionary with keys converted to snake case"""
     new_dict = {}
     for k, v in d.items():
         new_dict[camel_case_to_snake_case(k)] = v
@@ -46,7 +49,7 @@ def keys_to_snake_case(d):
 
 
 def dict_to_model(params: HashableParams, movie_dict: dict):
-    """ converts a movie_dict to model """
+    """converts a movie_dict to model"""
     update = {
         "engine": movie_dict["source"],
         "name": movie_dict["title"],
@@ -70,31 +73,39 @@ def dict_to_model(params: HashableParams, movie_dict: dict):
 
 
 @lru_cache(maxsize=4096)
-def get_movies_from_remote(url: str, params: HashableParams, engine: str, db: HashableSession):
-    """ Gets movies from remote url """
+def get_movies_from_remote(
+    url: str, params: HashableParams, engine: str, db: HashableSession
+):
+    """Gets movies from remote url"""
     movies = []
     adapter = HTTPAdapter(max_retries=1)
     http = requests.Session()
     http.mount("https://", adapter)
     http.mount("http://", adapter)
     try:
-        headers = {'Authorization': f'Bearer {settings.gophie_access_key}'}
+        headers = {"Authorization": f"Bearer {settings.gophie_access_key}"}
         start = time.time()
         response = http.get(url, params=params, headers=headers, timeout=20)
         if response.status_code != 200:
-            raise GophieUnresponsive(f"Invalid Response from {settings.gophie_host} for <{engine}: ({response.status_code}): {response.content}")
+            raise GophieUnresponsive(
+                f"Invalid Response from {settings.gophie_host} for <{engine}: ({response.status_code}): {response.content}"
+            )
         if response.json() in ([], None):
-            raise InvalidResponse(f"Empty Response from {settings.gophie_host} for {engine}: {response.content}")
+            raise InvalidResponse(
+                f"Empty Response from {settings.gophie_host} for {engine}: {response.content}"
+            )
         print("time elapsed: ", time.time() - start)
     except Exception as e:
         logging.error(str(e))
-        raise GophieHostException(f"Invalid Response from {settings.gophie_host}: {str(e)}")
+        raise GophieHostException(
+            f"Invalid Response from {settings.gophie_host}: {str(e)}"
+        )
     else:
         for m in response.json():
             movie = keys_to_snake_case(m)
             if movie.get("title", None) and movie.get("source", None):
                 movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
-#                 cleaned_movie["ratings"] = crud.get_movie_average_ratings(db=db, movie=cleaned_movie)
+                # cleaned_movie["ratings"] = crud.get_movie_average_ratings(db=db, movie=cleaned_movie)
                 movies.append(cleaned_movie)
     return movies

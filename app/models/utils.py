@@ -21,16 +21,14 @@ def column_windows(session, column, windowsize):
     be computed.
 
     """
+
     def int_for_range(start_id, end_id):
         if end_id:
-            return and_(
-                column >= start_id,
-                column < end_id
-            )
+            return and_(column >= start_id, column < end_id)
         else:
             return column >= start_id
 
-    q = session.query(column, func.row_number().over(order_by=column).label('rownum'))
+    q = session.query(column, func.row_number().over(order_by=column).label("rownum"))
     if windowsize > 1:
         q = q.filter(sqlalchemy.text("movies.id %% %d=1" % windowsize))
 
@@ -47,7 +45,7 @@ def column_windows(session, column, windowsize):
 
 @lru_cache(maxsize=1024)
 def windowed_query(q: HashableSession, column, windowsize):
-    """"Break a Query into windows on a given column."""
+    """ "Break a Query into windows on a given column."""
     return list(q.filter(whereclause).order_by(column))
 
 
