@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=gophie
+      - POSTGRES_DB_NAME=gophie
+
+  gophie:
+    build: https://github.com/go-phie/gophie.git
+    ports:
+      - "3000:3000"
+
+  ocena:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - gophie
+    ports:
+      - "8000:8000"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=test@example.com
+      - PGADMIN_DEFAULT_PASSWORD=secret
+    ports:
+      - "8080:80"
