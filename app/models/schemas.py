@@ -46,7 +46,7 @@ class Rating(RatingBase):
     score: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class AverageRating(BaseModel):
@@ -94,7 +94,7 @@ class Download(DownloadBase):
     datetime: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Referral Schemas
@@ -114,7 +114,7 @@ class Referral(ReferralBase):
     datetime: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Movie Schemas
@@ -140,7 +140,7 @@ class MovieComplete(MovieCreate):
 
 class MovieReferral(MovieComplete):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MovieDownloads(MovieComplete):
@@ -155,7 +155,7 @@ class Movie(MovieReferral):
     average_ratings: Optional[AverageRating] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     @model_validator(mode="after")
     def get_average_ratings(self):

@@ -51,7 +51,6 @@ def create_or_update_rating(
     """
     Create or update a movie rating by an ip_address
     """
-    print(spec_rating)
     return crud.create_or_update_rating(db=db, spec_rating=spec_rating)
 
 

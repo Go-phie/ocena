@@ -13,7 +13,8 @@ if settings.debug:
     #     engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
     engine = create_engine(settings.database_url)
 else:
-    engine = create_engine(settings.database_url)
+    # atleast 3 pods: pool size -> 15, max overflow: 15. Total connections: alteat 30
+    engine = create_engine(settings.database_url, pool_size=5, max_overflow=5)
 
 
 class HashableSession(Session):
