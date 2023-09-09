@@ -86,6 +86,7 @@ def get_movies_from_remote(
         headers = {"Authorization": f"Bearer {settings.gophie_access_key}"}
         start = time.time()
         response = http.get(url, params=params, headers=headers, timeout=20)
+        print(response.content)
         if response.status_code != 200:
             raise GophieUnresponsive(
                 f"Invalid Response from {settings.gophie_host} for <{engine}: ({response.status_code}): {response.content}"
@@ -106,6 +107,8 @@ def get_movies_from_remote(
             if movie.get("title", None) and movie.get("source", None):
                 movie_model = dict_to_model(params, movie)
                 cleaned_movie = crud.create_movie(db, movie_model)
-                # cleaned_movie["ratings"] = crud.get_movie_average_ratings(db=db, movie=cleaned_movie)
+                # cleaned_movie.ratings = crud.get_movie_ratings(
+                #     db=db, movie=cleaned_movie
+                # )
                 movies.append(cleaned_movie)
     return movies

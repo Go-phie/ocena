@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 from app.settings import settings
 from app import utils
 from app.models import (
-    SessionLocal,
     schemas,
     crud,
     HashableSession,
@@ -19,14 +18,6 @@ from app.models import (
 )
 
 router = APIRouter()
-
-
-@router.post("/movie/ratings/average/", response_model=schemas.AverageRating)
-def get_average_ratings(movie: schemas.MovieRating, db: Session = Depends(get_db)):
-    """
-    Get average movie ratings and number of people who have rated
-    """
-    return crud.get_movie_average_ratings(db=db, movie=movie)
 
 
 @router.post("/movie/rating/", response_model=schemas.Rating)
@@ -60,6 +51,7 @@ def create_or_update_rating(
     """
     Create or update a movie rating by an ip_address
     """
+    print(spec_rating)
     return crud.create_or_update_rating(db=db, spec_rating=spec_rating)
 
 

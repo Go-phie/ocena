@@ -31,3 +31,4 @@ alembic revision --autogenerate -m "Commit message"
   `alembic upgrade head`
 
 Visit http://localhost:8000/docs to interact with API
+Visit http://localhost:4000 for Gophie Web

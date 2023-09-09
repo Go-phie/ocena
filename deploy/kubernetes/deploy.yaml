@@ -24,6 +24,10 @@ spec:
 #            cpu: "500m"
         ports:
         - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /docs
+            port: 8000
 
 ---
 apiVersion: v1

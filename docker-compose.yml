@@ -29,3 +29,10 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=secret
     ports:
       - "8080:80"
+
+  gophie-web:
+    build: /home/manasseh/Codes/github/Go-phie/gophie-web
+    environment:
+    - PORT=4000
+    ports:
+      - "4000:4000"

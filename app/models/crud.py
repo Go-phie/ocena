@@ -21,18 +21,15 @@ def list_movies(db: HashableSession, engine: str, page: int, num: int):
     """
     Get List of Movies. With pagination and a total of `num` rows per query
     """
-    print(
-        list(
-            db.query(models.Movie, func.avg(models.Rating.score))
-            .join(models.Rating)
-            .order_by(models.Movie.date_created.desc())
-            .group_by(models.Movie.id)
-            .filter(func.lower(models.Movie.engine) == engine.lower())
-            .limit(num)
-            .offset(num * (page - 1))
-        )
+    return list(
+        db.query(models.Movie, func.avg(models.Rating.score))
+        .join(models.Rating)
+        .order_by(models.Movie.date_created.desc())
+        .group_by(models.Movie.id)
+        .filter(func.lower(models.Movie.engine) == engine.lower())
+        .limit(num)
+        .offset(num * (page - 1))
     )
-    return []
 
 
 @lru_cache(maxsize=4096)
@@ -151,25 +148,6 @@ def get_movie_ratings(db: Session, movie: schemas.MovieRating):
         return movie.ratings
     else:
         return []
-
-
-def get_movie_average_ratings(db: Session, movie: schemas.MovieRating):
-    """
-    Get the average ratings and number of raters of a particular movie
-    """
-    db_movie = (
-        db.query(models.Movie)
-        .filter(models.Movie.referral_id == movie.referral_id)
-        .first()
-    )
-    total_sum = add_ratings(db_movie.ratings)
-    if len(db_movie.ratings) > 0:
-        average_ratings = total_sum / len(db_movie.ratings)
-        return schemas.AverageRating(
-            average_ratings=average_ratings, by=len(db_movie.ratings)
-        )
-    else:
-        return schemas.AverageRating(average_ratings=0, by=0)
 
 
 def create_or_update_rating(db: Session, spec_rating: schemas.SpecificRatingScore):

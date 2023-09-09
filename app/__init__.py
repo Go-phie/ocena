@@ -1,8 +1,7 @@
 from typing import List
 from fastapi import FastAPI
 
-# from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.settings import (
     settings,
@@ -13,6 +12,16 @@ from app.routers import router
 
 
 app = FastAPI()
+
+if settings.debug:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_origin_regex=".*",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(router)
 
